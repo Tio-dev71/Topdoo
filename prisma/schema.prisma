@@ -1,0 +1,531 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// ENUMS (RBAC, THREAT CLASSIFICATIONS, WORKFLOW STATUS, BILLING)
+// ─────────────────────────────────────────────────────────────
+
+enum Role {
+  OWNER
+  ADMIN
+  SECURITY_ANALYST
+  DEVELOPER
+  USER
+}
+
+enum PlanType {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum EntityType {
+  DOMAIN
+  URL
+  WALLET
+  PHONE
+  EMAIL
+  SOCIAL
+  COMPANY
+  PERSON
+}
+
+enum EntityStatus {
+  CONFIRMED_MALICIOUS
+  SUSPICIOUS
+  UNDER_REVIEW
+  BENIGN
+  SANCTIONED
+}
+
+enum ReportStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+  RESOLVED
+}
+
+enum EvidenceType {
+  SCREENSHOT
+  TX_HASH
+  HTTP_DUMP
+  WHOIS_RECORD
+  LOG_ENTRY
+  OTHER
+}
+
+enum ScanStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum CreditTransactionType {
+  AI_PROMPT
+  SECURITY_SCAN
+  API_CALL
+  TOP_UP
+  MONTHLY_ALLOWANCE
+  STUDIO_GENERATION
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum AppealStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SloStatus {
+  HEALTHY
+  DEGRADED
+  INCIDENT
+}
+
+enum StudioProjectType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  PRESENTATION
+  DESIGN
+}
+
+enum ToolPricingType {
+  FREE
+  FREEMIUM
+  PAID
+  CONTACT
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CommunityCategory {
+  THREAT_ALERT
+  AI_DISCUSSION
+  TOOL_FEEDBACK
+  TUTORIAL
+}
+
+// ─────────────────────────────────────────────────────────────
+// M10: IDENTITY & ACCESS (RBAC) & M9: WORKSPACE & PROJECTS
+// ─────────────────────────────────────────────────────────────
+
+model User {
+  id              String            @id @default(uuid())
+  email           String            @unique
+  fullName        String?
+  avatarUrl       String?
+  role            Role              @default(USER)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  workspaces      WorkspaceMember[]
+  reports         ScanReport[]      @relation("ReportSubmitter")
+  verifiedReports ScanReport[]      @relation("ReportVerifier")
+  apiKeys         ApiKey[]
+  studioProjects  StudioProject[]   @relation("UserStudioProjects")
+
+  @@map("users")
+}
+
+model Workspace {
+  id          String            @id @default(uuid())
+  name        String
+  slug        String            @unique
+  plan        PlanType          @default(FREE)
+  ownerId     String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  members       WorkspaceMember[]
+  projects      Project[]
+  watchlist     WatchlistItem[]
+  creditAccount CreditAccount?
+  subscription  Subscription?
+  studioProjects StudioProject[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String     @id @default(uuid())
+  workspaceId String
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        Role       @default(USER)
+  joinedAt    DateTime   @default(now())
+
+  @@unique([workspaceId, userId])
+  @@map("workspace_members")
+}
+
+model Project {
+  id          String     @id @default(uuid())
+  workspaceId String
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  status      String     @default("ACTIVE")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("projects")
+}
+
+// ─────────────────────────────────────────────────────────────
+// M4: TOPDOO SECURITY & SCAM DATABASE & EVIDENCE WORKSPACE
+// ─────────────────────────────────────────────────────────────
+
+model ThreatEntity {
+  id            String          @id @default(uuid())
+  identifier    String          @unique
+  type          EntityType      @default(DOMAIN)
+  name          String
+  riskScore     Int             @default(0)
+  status        EntityStatus    @default(SUSPICIOUS)
+  targetBrand   String?
+  category      String?
+  country       String?
+  ip            String?
+  asn           String?
+  registrar     String?
+  summary       String?
+  reportsCount  Int             @default(0)
+  evidenceCount Int             @default(0)
+  watchlist     Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  riskFactors   RiskFactor[]
+  reports       ScanReport[]
+  evidenceItems EvidenceItem[]
+  watchlists    WatchlistItem[]
+  appeals       AppealRequest[]
+
+  @@map("threat_entities")
+}
+
+model RiskFactor {
+  id             String       @id @default(uuid())
+  threatEntityId String
+  threatEntity   ThreatEntity @relation(fields: [threatEntityId], references: [id], onDelete: Cascade)
+  name           String
+  score          Int
+  maxScore       Int
+  status         String
+  desc           String?
+
+  @@map("risk_factors")
+}
+
+model ScanReport {
+  id                String         @id @default(uuid())
+  reportCode        String         @unique
+  entityId          String?
+  threatEntity      ThreatEntity?  @relation(fields: [entityId], references: [id])
+  reporterId        String?
+  reporter          User?          @relation("ReportSubmitter", fields: [reporterId], references: [id])
+  reporterName      String?
+  reporterEmail     String?
+  targetIdentifier  String
+  category          String
+  description       String
+  evidenceUrl       String?
+  lossAmount        String?
+  status            ReportStatus   @default(SUBMITTED)
+  verifierId        String?
+  verifier          User?          @relation("ReportVerifier", fields: [verifierId], references: [id])
+  verificationNotes String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  evidenceItems     EvidenceItem[]
+
+  @@map("scan_reports")
+}
+
+model EvidenceItem {
+  id              String        @id @default(uuid())
+  reportId        String?
+  report          ScanReport?   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  entityId        String?
+  threatEntity    ThreatEntity? @relation(fields: [entityId], references: [id])
+  title           String
+  type            EvidenceType  @default(SCREENSHOT)
+  contentUrl      String?
+  hashSha256      String?
+  confidenceScore Int           @default(85)
+  verified        Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+
+  @@map("evidence_items")
+}
+
+model WatchlistItem {
+  id             String       @id @default(uuid())
+  workspaceId    String
+  workspace      Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  entityId       String
+  threatEntity   ThreatEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  alertThreshold Int          @default(70)
+  notes          String?
+  createdAt      DateTime     @default(now())
+
+  @@unique([workspaceId, entityId])
+  @@map("watchlist_items")
+}
+
+// ─────────────────────────────────────────────────────────────
+// M6: DEVELOPER API KEYS & M5: SCANNER JOBS
+// ─────────────────────────────────────────────────────────────
+
+model ApiKey {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  keyHash     String    @unique
+  prefix      String
+  environment String    @default("live")
+  rateLimit   Int       @default(1000)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@map("api_keys")
+}
+
+model ScanJob {
+  id          String     @id @default(uuid())
+  targetUrl   String
+  domain      String
+  status      ScanStatus @default(PENDING)
+  riskScore   Int        @default(0)
+  verdict     String?
+  detailsJson String?
+  createdAt   DateTime   @default(now())
+
+  @@map("scan_jobs")
+}
+
+// ─────────────────────────────────────────────────────────────
+// M11: BILLING & USAGE (CREDIT LEDGER & SUBSCRIPTIONS)
+// ─────────────────────────────────────────────────────────────
+
+model CreditAccount {
+  id           String              @id @default(uuid())
+  workspaceId  String              @unique
+  workspace    Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  balance      Int                 @default(5000)
+  reserved     Int                 @default(0)
+  updatedAt    DateTime            @updatedAt
+
+  transactions CreditTransaction[]
+
+  @@map("credit_accounts")
+}
+
+model CreditTransaction {
+  id              String                @id @default(uuid())
+  creditAccountId String
+  creditAccount   CreditAccount         @relation(fields: [creditAccountId], references: [id], onDelete: Cascade)
+  amount          Int
+  type            CreditTransactionType
+  modelUsed       String?
+  description     String
+  createdAt       DateTime              @default(now())
+
+  @@map("credit_transactions")
+}
+
+model Subscription {
+  id              String             @id @default(uuid())
+  workspaceId     String             @unique
+  workspace       Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  plan            PlanType           @default(PRO)
+  status          SubscriptionStatus @default(ACTIVE)
+  billingCycle    String             @default("monthly")
+  priceMonthly    Int                @default(299000)
+  currentPeriodEnd DateTime
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@map("subscriptions")
+}
+
+// ─────────────────────────────────────────────────────────────
+// M12: ADMIN & OPERATIONS (APPEALS/DISPUTES & SYSTEM SLO)
+// ─────────────────────────────────────────────────────────────
+
+model AppealRequest {
+  id               String       @id @default(uuid())
+  entityId         String?
+  threatEntity     ThreatEntity? @relation(fields: [entityId], references: [id])
+  targetIdentifier String
+  requesterEmail   String
+  reason           String
+  evidenceUrl      String?
+  status           AppealStatus @default(PENDING)
+  reviewedBy       String?
+  reviewerNotes    String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@map("appeal_requests")
+}
+
+model SystemSloMetric {
+  id                String    @id @default(uuid())
+  serviceName       String    @unique
+  uptimePercentage  Float     @default(99.98)
+  latencyP95        Int       @default(145)
+  errorRate         Float     @default(0.02)
+  status            SloStatus @default(HEALTHY)
+  updatedAt         DateTime  @updatedAt
+
+  @@map("system_slo_metrics")
+}
+
+// ─────────────────────────────────────────────────────────────
+// PHASE 3: M2 (TOPDOO STUDIO), M3 (TOOLS CATALOG), M7 (ACADEMY), M8 (COMMUNITY)
+// ─────────────────────────────────────────────────────────────
+
+model StudioProject {
+  id            String            @id @default(uuid())
+  workspaceId   String?
+  workspace     Workspace?        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId        String?
+  user          User?             @relation("UserStudioProjects", fields: [userId], references: [id])
+  title         String
+  type          StudioProjectType @default(TEXT)
+  prompt        String
+  outputContent String?           @db.Text
+  canvasData    Json?
+  creditsUsed   Int               @default(10)
+  isPublished   Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@map("studio_projects")
+}
+
+model AiTool {
+  id           String          @id @default(uuid())
+  name         String
+  slug         String          @unique
+  category     String
+  pricingType  ToolPricingType @default(FREEMIUM)
+  pricingLabel String          @default("Freemium")
+  rating       Float           @default(4.8)
+  reviewCount  Int             @default(0)
+  verified     Boolean         @default(true)
+  description  String
+  websiteUrl   String?
+  iconBg       String?
+  iconColor    String?
+  tags         String[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  reviews      ToolReview[]
+  savedTools   SavedTool[]
+
+  @@map("ai_tools")
+}
+
+model ToolReview {
+  id           String   @id @default(uuid())
+  toolId       String
+  tool         AiTool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  userId       String?
+  userName     String
+  userAvatar   String?
+  rating       Int      @default(5)
+  comment      String
+  helpfulCount Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@map("tool_reviews")
+}
+
+model SavedTool {
+  id          String   @id @default(uuid())
+  toolId      String
+  tool        AiTool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  workspaceId String?
+  userId      String?
+  createdAt   DateTime @default(now())
+
+  @@unique([toolId, userId])
+  @@map("saved_tools")
+}
+
+model AcademyCourse {
+  id                   String      @id @default(uuid())
+  title                String
+  slug                 String      @unique
+  category             String
+  level                CourseLevel @default(BEGINNER)
+  durationMinutes      Int         @default(120)
+  lessonsCount         Int         @default(8)
+  instructor           String
+  thumbnailUrl         String?
+  description          String
+  enrolledCount        Int         @default(1250)
+  certificateAvailable Boolean     @default(true)
+  createdAt            DateTime    @default(now())
+
+  @@map("academy_courses")
+}
+
+model CommunityPost {
+  id            String            @id @default(uuid())
+  title         String
+  content       String            @db.Text
+  authorName    String
+  authorRole    String            @default("Cyber Analyst")
+  authorAvatar  String?
+  category      CommunityCategory @default(THREAT_ALERT)
+  likesCount    Int               @default(0)
+  commentsCount Int               @default(0)
+  tags          String[]
+  isPinned      Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  comments      CommunityComment[]
+
+  @@map("community_posts")
+}
+
+model CommunityComment {
+  id           String        @id @default(uuid())
+  postId       String
+  post         CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorName   String
+  authorAvatar String?
+  content      String
+  createdAt    DateTime      @default(now())
+
+  @@map("community_comments")
+}
