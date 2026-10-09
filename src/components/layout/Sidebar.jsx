@@ -24,7 +24,8 @@ import {
   PlusCircle,
   AlertCircle,
   ArrowLeft,
-  Home
+  Home,
+  X
 } from 'lucide-react';
 import { useSecurity } from '../../context/SecurityContext';
 
@@ -54,6 +55,8 @@ export function Sidebar() {
   const watchlistCount = entities.filter(e => e.watchlist).length;
   const pendingVerificationCount = reports.filter(r => r.status === 'Submitted' || r.status === 'Under Review').length;
 
+  const isExpanded = !sidebarCollapsed || mobileMenuOpen;
+
   const navItem = (id, label, icon, badge = null, badgeType = 'default') => {
     const isActive = currentView === id;
     const IconComponent = icon;
@@ -67,11 +70,11 @@ export function Sidebar() {
           if (mobileMenuOpen) setMobileMenuOpen(false);
         }}
         className={`nav-item ${isActive ? 'active' : ''}`}
-        title={sidebarCollapsed ? label : undefined}
+        title={!isExpanded ? label : undefined}
       >
         <IconComponent size={16} />
-        {!sidebarCollapsed && <span>{label}</span>}
-        {!sidebarCollapsed && badge !== null && (
+        {isExpanded && <span>{label}</span>}
+        {isExpanded && badge !== null && (
           <span className={`nav-item-badge ${badgeType}`}>
             {badge}
           </span>
@@ -81,46 +84,65 @@ export function Sidebar() {
   };
 
   return (
-    <aside className={`app-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-      {/* Brand Header */}
-      <div className="sidebar-header">
+    <>
+      {mobileMenuOpen && (
         <div
-          className="brand-logo-wrap"
-          onClick={handleReturnHome}
-          title="Bấm để về Trang chủ Topdoo"
-          style={{ cursor: 'pointer' }}
-        >
-          <img
-            src="/topdoo.jpeg"
-            alt="TOPDOO Logo"
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              objectFit: 'cover',
-              boxShadow: '0 0 12px rgba(37, 99, 235, 0.35)',
-              border: '1px solid rgba(59, 130, 246, 0.4)'
-            }}
-          />
-          {!sidebarCollapsed && (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '0.04em' }}>TOPDOO</span>
-              <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.08em' }}>
-                TRUNG TÂM BẢO MẬT
-              </span>
-            </div>
-          )}
-        </div>
+          className="sidebar-backdrop"
+          onClick={() => setMobileMenuOpen(false)}
+          title="Bấm để đóng menu"
+          aria-label="Đóng menu"
+        />
+      )}
+      <aside className={`app-sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+        {/* Brand Header */}
+        <div className="sidebar-header">
+          <div
+            className="brand-logo-wrap"
+            onClick={handleReturnHome}
+            title="Bấm để về Trang chủ Topdoo"
+            style={{ cursor: 'pointer' }}
+          >
+            <img
+              src="/topdoo.jpeg"
+              alt="TOPDOO Logo"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                objectFit: 'cover',
+                boxShadow: '0 0 12px rgba(37, 99, 235, 0.35)',
+                border: '1px solid rgba(59, 130, 246, 0.4)'
+              }}
+            />
+            {(!sidebarCollapsed || mobileMenuOpen) && (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '0.04em' }}>TOPDOO</span>
+                <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.08em' }}>
+                  TRUNG TÂM BẢO MẬT
+                </span>
+              </div>
+            )}
+          </div>
 
-        <button
-          className="btn-icon"
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          title={sidebarCollapsed ? 'Mở rộng' : 'Thu gọn'}
-          style={{ width: 26, height: 26 }}
-        >
-          {sidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-        </button>
-      </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button
+              className="btn-icon mobile-close-btn"
+              onClick={() => setMobileMenuOpen(false)}
+              title="Đóng menu điều hướng"
+              aria-label="Đóng menu điều hướng"
+            >
+              <X size={18} />
+            </button>
+            <button
+              className="btn-icon desktop-collapse-btn"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              title={sidebarCollapsed ? 'Mở rộng' : 'Thu gọn'}
+              style={{ width: 26, height: 26 }}
+            >
+              {sidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            </button>
+          </div>
+        </div>
 
       {/* Navigation Body */}
       <div className="sidebar-nav">
@@ -133,9 +155,9 @@ export function Sidebar() {
               width: '100%',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+              justifyContent: isExpanded ? 'flex-start' : 'center',
               gap: 8,
-              padding: sidebarCollapsed ? '8px 0' : '8px 12px',
+              padding: isExpanded ? '8px 12px' : '8px 0',
               fontSize: 12.5,
               fontWeight: 700,
               color: '#1D4ED8',
@@ -149,7 +171,7 @@ export function Sidebar() {
             title="Quay lại Trang chủ Topdoo Security"
           >
             <ArrowLeft size={16} />
-            {!sidebarCollapsed && <span>Quay lại Trang chủ</span>}
+            {isExpanded && <span>Quay lại Trang chủ</span>}
           </button>
         </div>
 
@@ -160,7 +182,7 @@ export function Sidebar() {
 
         {/* SECURITY */}
         <div>
-          {!sidebarCollapsed && <div className="nav-section-title">Bảo mật</div>}
+          {isExpanded && <div className="nav-section-title">Bảo mật</div>}
           <div className="nav-group">
             {navItem('quick-check', 'Kiểm tra nhanh', Zap)}
             {navItem('url-scanner', 'Quét URL / Tên miền', Globe)}
@@ -175,7 +197,7 @@ export function Sidebar() {
 
         {/* INTELLIGENCE */}
         <div>
-          {!sidebarCollapsed && <div className="nav-section-title">Phân tích</div>}
+          {isExpanded && <div className="nav-section-title">Phân tích</div>}
           <div className="nav-group">
             {navItem('reports', 'Báo cáo & Vụ việc', FileText, reports.length)}
             {navItem('evidence', 'Kho bằng chứng', FileCheck)}
@@ -186,7 +208,7 @@ export function Sidebar() {
 
         {/* MANAGEMENT */}
         <div>
-          {!sidebarCollapsed && <div className="nav-section-title">Quản lý</div>}
+          {isExpanded && <div className="nav-section-title">Quản lý</div>}
           <div className="nav-group">
             {navItem('report-scam', 'Báo cáo lừa đảo', PlusCircle)}
             {navItem('api-integrations', 'API & Tích hợp', Terminal)}
@@ -198,7 +220,7 @@ export function Sidebar() {
 
       {/* Sidebar Footer with quick actions */}
       <div className="sidebar-footer">
-        {!sidebarCollapsed ? (
+        {isExpanded ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <button
               className="btn btn-primary"
@@ -265,5 +287,6 @@ export function Sidebar() {
         )}
       </div>
     </aside>
+    </>
   );
 }

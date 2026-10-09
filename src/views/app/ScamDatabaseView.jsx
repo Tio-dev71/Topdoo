@@ -204,7 +204,7 @@ export function ScamDatabaseView() {
             border: '1px solid #E2E8F0'
           }}
         >
-          <div className="filter-bar" style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 2fr) minmax(160px, 1fr) minmax(160px, 1fr) auto', gap: 12, alignItems: 'center' }}>
+          <div className="filter-bar secops-filter-bar">
             {/* Search Input */}
             <div style={{ position: 'relative' }}>
               <Search size={15} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />

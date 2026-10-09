@@ -398,7 +398,7 @@ export function RiskScoreMethodologyView() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.45fr) minmax(320px, 1fr)', gap: 32, marginTop: 22 }}>
+          <div className="secops-split-grid" style={{ marginTop: 22 }}>
             {/* Sliders List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
               {/* Factor 1: Report History */}

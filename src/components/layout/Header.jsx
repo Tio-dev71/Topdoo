@@ -54,6 +54,17 @@ export function Header() {
   return (
     <header className="top-header">
       <div className="header-left">
+        {/* Mobile menu toggle */}
+        <button
+          className="mobile-menu-toggle-btn"
+          onClick={() => setMobileMenuOpen(prev => !prev)}
+          id="mobile-nav-toggle"
+          title="Mở menu điều hướng"
+          aria-label="Mở menu điều hướng"
+        >
+          <Menu size={18} />
+        </button>
+
         {/* Quay lại màn hình chính Topdoo */}
         <button
           className="btn-exit-console-pill"
@@ -63,65 +74,42 @@ export function Header() {
             if (typeof window !== 'undefined') window.history.pushState({}, '', '/topdoo-security');
           }}
           title="Rời khỏi SecOps Console và quay lại Trang chủ Topdoo Security"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '6px 14px',
-            fontSize: 12.5,
-            fontWeight: 700,
-            color: '#1D4ED8',
-            background: '#EFF6FF',
-            border: '1px solid #BFDBFE',
-            borderRadius: 8,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-            transition: 'all 0.15s ease',
-            boxShadow: '0 1px 2px rgba(37, 99, 235, 0.08)'
-          }}
         >
           <ArrowLeft size={14} />
-          <span>⬅️ Quay lại Trang chủ</span>
-        </button>
-
-        {/* Mobile menu toggle */}
-        <button
-          className="btn-icon"
-          onClick={() => setMobileMenuOpen(prev => !prev)}
-          style={{ display: 'none' }}
-          id="mobile-nav-toggle"
-        >
-          <Menu size={18} />
+          <span className="exit-text-desktop">⬅️ Quay lại Trang chủ</span>
+          <span className="exit-text-mobile">Trang chủ</span>
         </button>
 
         {/* Global Search Trigger */}
         <button
           className="search-trigger-btn"
           onClick={() => setIsSearchOpen(true)}
+          title="Tìm kiếm thông minh (⌘K)"
         >
           <Search size={15} color="var(--text-muted)" />
-          <span>Tìm kiếm tên miền, URL, ví, SĐT, IP hoặc báo cáo...</span>
+          <span className="search-text-full">Tìm kiếm tên miền, URL, ví, SĐT, IP hoặc báo cáo...</span>
+          <span className="search-text-short">Tìm kiếm...</span>
           <span className="search-kbd">⌘K</span>
         </button>
 
         {/* Quick Check Action Button */}
         <button
-          className="btn btn-primary btn-sm"
+          className="btn btn-primary btn-sm header-quick-check-btn"
           onClick={() => {
             setMode('app');
             setCurrentView('quick-check');
           }}
-          style={{ gap: 6 }}
         >
           <Zap size={13} />
-          <span>Kiểm tra nhanh</span>
+          <span className="quick-check-text-full">Kiểm tra nhanh</span>
+          <span className="quick-check-text-short">Quét</span>
         </button>
       </div>
 
       <div className="header-right">
         {/* Workspace Switcher (M9) */}
         {mode === 'app' && workspaces && workspaces.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className="header-workspace-wrap header-desktop-only" style={{ display: 'flex', alignItems: 'center' }}>
             <select
               value={currentWorkspace?.id}
               onChange={(e) => switchWorkspace(e.target.value)}
@@ -149,7 +137,7 @@ export function Header() {
 
         {/* RBAC Role Switcher (M10) */}
         {mode === 'app' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div className="header-role-wrap header-desktop-only" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <select
               value={userRole}
               onChange={(e) => {
@@ -180,6 +168,7 @@ export function Header() {
 
         {/* AI Credits Badge (M11 & M1) */}
         <div
+          className="header-credits-badge"
           onClick={() => {
             const choice = window.prompt(
               "Nạp thêm AI Credits vào tài khoản Topdoo:\nNhập số credits cần nạp (Ví dụ: 10000, 50000, 200000) hoặc bấm OK để nạp nhanh +10,000:",
@@ -192,51 +181,22 @@ export function Header() {
               }
             }
           }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '4px 10px',
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#F59E0B',
-            background: 'rgba(245, 158, 11, 0.1)',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
-            borderRadius: 6,
-            cursor: 'pointer',
-            userSelect: 'none',
-            transition: 'all 0.2s'
-          }}
           title="Số dư AI Credits (Bấm để nạp thêm tùy ý không giới hạn)"
         >
           <span>🪙</span>
-          <span>{creditBalance !== undefined ? creditBalance.toLocaleString() : '50,000'} Credits</span>
+          <span className="credits-text-full">{creditBalance !== undefined ? creditBalance.toLocaleString() : '50,000'} Credits</span>
+          <span className="credits-text-short">{creditBalance !== undefined ? (creditBalance >= 1000 ? `${Math.round(creditBalance / 1000)}k` : creditBalance) : '50k'}</span>
         </div>
 
-        {/* Quay lại Trang chủ Topdoo */}
+        {/* Quay lại Trang chủ Topdoo - desktop only */}
         <button
-          className="btn-return-home-main"
+          className="btn-return-home-main header-desktop-home-btn"
           onClick={() => {
             setMode('marketing');
             setMarketingRoute('topdoo-security');
             if (typeof window !== 'undefined') window.history.pushState({}, '', '/topdoo-security');
           }}
           title="Rời khỏi SecOps Console và quay lại Trang chủ Topdoo Security"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '6px 14px',
-            fontSize: 12.5,
-            fontWeight: 700,
-            color: '#1E293B',
-            background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%)',
-            border: '1px solid #CBD5E1',
-            borderRadius: 8,
-            cursor: 'pointer',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-            transition: 'all 0.15s ease'
-          }}
         >
           <Home size={14} style={{ color: '#2563EB' }} />
           <span>Trang chủ Topdoo</span>

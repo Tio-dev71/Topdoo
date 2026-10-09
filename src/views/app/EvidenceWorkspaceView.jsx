@@ -206,7 +206,7 @@ export function EvidenceWorkspaceView() {
         </div>
 
         {/* Two-Pane Workspace Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1.75fr', gap: 20, alignItems: 'start' }}>
+        <div className="secops-split-grid">
           {/* Left Pane: Evidence List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {filteredEvidence.length === 0 ? (
@@ -394,7 +394,7 @@ export function EvidenceWorkspaceView() {
                   <h3 style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                     Technical Metadata & Inspection Headers
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, background: '#F8FAFC', padding: 14, borderRadius: 10, border: '1px solid #E2E8F0' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: 10, background: '#F8FAFC', padding: 14, borderRadius: 10, border: '1px solid #E2E8F0' }}>
                     {Object.entries(activeItem.metadata).map(([k, v]) => (
                       <div key={k}>
                         <span style={{ fontSize: 11, fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>{k}</span>

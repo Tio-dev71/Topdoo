@@ -295,7 +295,7 @@ export function DashboardOverview() {
         </div>
 
         {/* Main Grid: Threats Table + Analytics Column */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 360px', gap: 24 }}>
+        <div className="secops-dashboard-grid">
           {/* Left Column: Recent Threats Table */}
           <div className="sec-card" style={{
             display: 'flex',
@@ -532,7 +532,7 @@ export function DashboardOverview() {
         </div>
 
         {/* Lower Row: Recent Reports + Active Security Alerts */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 20 }}>
           {/* Recent Reports */}
           <div className="sec-card" style={{
             borderRadius: 20,

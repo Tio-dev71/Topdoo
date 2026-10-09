@@ -199,7 +199,7 @@ export function ReportsView() {
         </div>
 
         {/* Main Master-Detail Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1.75fr', gap: 20, alignItems: 'start' }}>
+        <div className="secops-split-grid">
           {/* Left Master List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {filteredReports.length === 0 ? (
@@ -304,7 +304,7 @@ export function ReportsView() {
               </div>
 
               {/* Target & Loss Banner */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, background: '#F8FAFC', padding: 14, borderRadius: 10, border: '1px solid #E2E8F0' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 12, background: '#F8FAFC', padding: 14, borderRadius: 10, border: '1px solid #E2E8F0' }}>
                 <div>
                   <span style={{ fontSize: 11, fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Target Entity</span>
                   <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>

@@ -303,7 +303,7 @@ if result.is_phishing:
 
         {/* TAB 2: CONNECTORS */}
         {activeTab === 'integrations' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 16 }}>
             {integrationsList.map(item => {
               const IconComp = item.icon;
               return (

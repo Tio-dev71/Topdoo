@@ -261,7 +261,7 @@ export function ReleaseGateView() {
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 14 }}>
               {SECURITY_CHECKLIST_RULES.map((rule, idx) => (
                 <div
                   key={rule.id}

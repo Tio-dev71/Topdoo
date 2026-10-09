@@ -102,7 +102,7 @@ export function AlertsCenterView() {
         </div>
 
         {/* Two-Column Grid: Alerts List on Left, Detail on Right */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1.75fr', gap: 20, alignItems: 'start' }}>
+        <div className="secops-split-grid">
           {/* Left Column: Alerts List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {filteredAlerts.length === 0 ? (
@@ -175,7 +175,7 @@ export function AlertsCenterView() {
 
           {/* Right Column: Alert Detail Inspector */}
           {selectedAlert ? (
-            <div style={{
+            <div className="secops-detail-panel" style={{
               background: '#FFFFFF',
               borderRadius: 16,
               border: '1px solid #E2E8F0',

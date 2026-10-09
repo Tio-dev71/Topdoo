@@ -173,7 +173,7 @@ export function VerificationCenterView() {
         </div>
 
         {/* Main Grid: Queue Table on Left, Decision Reviewer on Right */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.35fr 1.65fr', gap: 20, alignItems: 'start' }}>
+        <div className="secops-split-grid">
           {/* Left Pane: Verification Queue Table */}
           <div style={{ background: '#FFFFFF', borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC' }}>
