@@ -94,7 +94,7 @@ export function Header() {
 
         {/* Quick Check Action Button */}
         <button
-          className="btn btn-primary btn-sm header-quick-check-btn"
+          className="btn btn-primary btn-sm header-quick-check-btn header-desktop-only"
           onClick={() => {
             setMode('app');
             setCurrentView('quick-check');
@@ -234,6 +234,7 @@ export function Header() {
                 top: 44,
                 right: 0,
                 width: 380,
+                maxWidth: 'calc(100vw - 20px)',
                 background: 'var(--bg-card-elevated)',
                 border: '1px solid var(--border-default)',
                 borderRadius: 'var(--radius-md)',
@@ -319,7 +320,7 @@ export function Header() {
 
         {/* Documentation / Help */}
         <button
-          className="btn-icon"
+          className="btn-icon header-desktop-only"
           title="Cơ sở kiến thức bảo mật & Tài liệu API"
           onClick={() => {
             setMode('app');
@@ -333,7 +334,7 @@ export function Header() {
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
           {user ? (
             <div
-              style={{ display: 'flex', alignItems: 'center', gap: 10, paddingLeft: 8, borderLeft: '1px solid var(--border-subtle)', cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 6, borderLeft: '1px solid var(--border-subtle)', cursor: 'pointer' }}
               onClick={() => setProfileOpen(prev => !prev)}
             >
               <div
@@ -349,7 +350,8 @@ export function Header() {
                   fontSize: 12,
                   color: '#FFFFFF',
                   border: '1px solid rgba(255, 255, 255, 0.15)',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  flexShrink: 0
                 }}
               >
                 {user.avatar ? (
@@ -358,7 +360,7 @@ export function Header() {
                   (user.fullName || user.email || 'TS').substring(0, 2).toUpperCase()
                 )}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div className="header-desktop-only" style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
                   {user.fullName || user.email.split('@')[0]}
                 </span>
@@ -366,10 +368,10 @@ export function Header() {
                   {user.plan ? `Gói ${user.plan}` : 'Đã đăng nhập'}
                 </span>
               </div>
-              <ChevronDown size={13} color="var(--text-muted)" />
+              <ChevronDown className="header-desktop-only" size={13} color="var(--text-muted)" />
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 8, borderLeft: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 6, borderLeft: '1px solid var(--border-subtle)' }}>
               <div
                 style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
                 onClick={() => setProfileOpen(prev => !prev)}
@@ -385,12 +387,13 @@ export function Header() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#64748B'
+                    color: '#64748B',
+                    flexShrink: 0
                   }}
                 >
                   <User size={16} />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div className="header-desktop-only" style={{ display: 'flex', flexDirection: 'column' }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
                     Khách tham quan
                   </span>
@@ -400,7 +403,7 @@ export function Header() {
                 </div>
               </div>
               <button
-                className="btn btn-primary btn-sm"
+                className="btn btn-primary btn-sm header-desktop-only"
                 onClick={() => openAuthModal('login')}
                 style={{ fontSize: 11.5, padding: '4px 10px', gap: 5, fontWeight: 700 }}
               >
@@ -417,6 +420,7 @@ export function Header() {
                 top: 44,
                 right: 0,
                 width: 250,
+                maxWidth: 'calc(100vw - 20px)',
                 background: 'var(--bg-card-elevated)',
                 border: '1px solid var(--border-default)',
                 borderRadius: 'var(--radius-md)',

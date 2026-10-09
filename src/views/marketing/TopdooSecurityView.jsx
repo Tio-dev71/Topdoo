@@ -1364,7 +1364,7 @@ export function TopdooSecurityView() {
               <div className="bottom-cta-icon-box">
                 <ShieldCheck size={28} color="#059669" />
               </div>
-              <div>
+              <div className="bottom-cta-text-wrap">
                 <h3 className="bottom-cta-title">Sẵn sàng bảo vệ thế giới số của bạn?</h3>
                 <p className="bottom-cta-sub">Hãy để Topdoo Security AI đồng hành bảo vệ dữ liệu và danh tính của bạn ngay hôm nay.</p>
               </div>

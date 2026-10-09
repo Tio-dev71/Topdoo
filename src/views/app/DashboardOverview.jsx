@@ -77,6 +77,7 @@ export function DashboardOverview() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
         {/* Hero Banner - matching marketing gradient style */}
         <div
+          className="dashboard-hero-banner"
           style={{
             position: 'relative',
             overflow: 'hidden',
@@ -152,7 +153,7 @@ export function DashboardOverview() {
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center', alignSelf: 'center' }}>
+            <div className="dashboard-hero-actions" style={{ display: 'flex', gap: 10, alignItems: 'center', alignSelf: 'center' }}>
               <button
                 className="btn btn-secondary btn-sm"
                 onClick={() => setCurrentView('monitoring')}
@@ -331,8 +332,8 @@ export function DashboardOverview() {
               </button>
             </div>
 
-            <div className="table-responsive" style={{ border: '1px solid #E2E8F0', borderRadius: 14, overflow: 'hidden' }}>
-              <table className="sec-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="table-responsive" style={{ border: '1px solid #E2E8F0', borderRadius: 14, overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}>
+              <table className="sec-table" style={{ width: '100%', minWidth: 620, borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'linear-gradient(to right, #F8FAFC, #F1F5F9)' }}>
                     <th style={{ padding: '12px 12px', fontSize: 11, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Đối tượng</th>
