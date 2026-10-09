@@ -57,12 +57,12 @@ export function SettingsView() {
   const [isAddingProject, setIsAddingProject] = useState(false);
 
   // 9Router Gateway State
-  const [nineUrl, setNineUrl] = useState(nineRouterConfig?.baseUrl || 'http://localhost:20128/v1');
-  const [nineKey, setNineKey] = useState(nineRouterConfig?.apiKey || 'sk-tiodev-chatbot-secret');
+  const [nineUrl, setNineUrl] = useState(nineRouterConfig?.baseUrl || '/api/9router/v1');
+  const [nineKey, setNineKey] = useState(nineRouterConfig?.apiKey || '');
   const [isPinging, setIsPinging] = useState(false);
 
   // Voicebox Gateway State
-  const [voiceUrl, setVoiceUrl] = useState(voiceboxConfig?.baseUrl || 'http://localhost:17493');
+  const [voiceUrl, setVoiceUrl] = useState(voiceboxConfig?.baseUrl || '/api/voicebox');
   const [isPingingVoice, setIsPingingVoice] = useState(false);
 
   const [settings, setSettings] = useState({
@@ -613,7 +613,7 @@ export function SettingsView() {
                   type="text"
                   value={nineUrl}
                   onChange={(e) => setNineUrl(e.target.value)}
-                  placeholder="http://localhost:20128/v1"
+                  placeholder="/api/9router/v1"
                   style={{
                     width: '100%',
                     background: '#F8FAFC',
@@ -635,7 +635,7 @@ export function SettingsView() {
                   type="text"
                   value={nineKey}
                   onChange={(e) => setNineKey(e.target.value)}
-                  placeholder="sk-tiodev-chatbot-secret"
+                  placeholder="Nhập API Key (tùy chọn hoặc để trống nếu dùng server proxy)"
                   style={{
                     width: '100%',
                     background: '#F8FAFC',
@@ -730,7 +730,7 @@ export function SettingsView() {
                   type="text"
                   value={voiceUrl}
                   onChange={(e) => setVoiceUrl(e.target.value)}
-                  placeholder="http://localhost:17493"
+                  placeholder="/api/voicebox"
                   className="input-text"
                   style={{ width: '100%', fontFamily: 'monospace', fontSize: 13 }}
                 />

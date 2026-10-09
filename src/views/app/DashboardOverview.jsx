@@ -376,7 +376,7 @@ export function DashboardOverview() {
                             textTransform: 'uppercase'
                           }}
                         >
-                          {ent.type === 'DOMAIN' ? 'TÊN MIỀN' : ent.type === 'WALLET' ? 'VÍ' : ent.type === 'SOCIAL' ? 'MXH' : ent.type === 'PHONE' ? 'SĐT' : ent.type}
+                          {ent.type?.toUpperCase() === 'BANK' ? 'NGÂN HÀNG' : ent.type?.toUpperCase() === 'DOMAIN' ? 'TÊN MIỀN' : ent.type?.toUpperCase() === 'WALLET' ? 'VÍ' : ent.type?.toUpperCase() === 'PHONE' ? 'SĐT' : ent.type?.toUpperCase() === 'EMAIL' ? 'EMAIL' : ent.type?.toUpperCase()}
                         </span>
                       </td>
                       <td style={{ padding: '12px 8px' }}>

@@ -37,12 +37,13 @@ export function ScamDatabaseView() {
 
   // Type filter options with counts
   const typeFilterOptions = useMemo(() => [
-    { id: 'ALL', label: 'All Vectors', count: entities.length },
-    { id: 'domain', label: 'Domains & URLs', icon: Globe, count: entities.filter(e => e.type === 'domain').length },
-    { id: 'wallet', label: 'Crypto Wallets', icon: Wallet, count: entities.filter(e => e.type === 'wallet').length },
-    { id: 'phone', label: 'Phone & SMS', icon: Phone, count: entities.filter(e => e.type === 'phone').length },
-    { id: 'email', label: 'Email Hosts', icon: Mail, count: entities.filter(e => e.type === 'email').length },
-    { id: 'company', label: 'Shell Companies', icon: Building2, count: entities.filter(e => e.type === 'company').length }
+    { id: 'ALL', label: 'Tất cả đối tượng', count: entities.length },
+    { id: 'bank', label: 'Tài khoản Ngân hàng', icon: Wallet, count: entities.filter(e => e.type === 'bank').length },
+    { id: 'domain', label: 'Tên miền & Web lừa đảo', icon: Globe, count: entities.filter(e => e.type === 'domain').length },
+    { id: 'phone', label: 'SĐT & SMS lừa đảo', icon: Phone, count: entities.filter(e => e.type === 'phone').length },
+    { id: 'email', label: 'Email Phishing / Giả mạo', icon: Mail, count: entities.filter(e => e.type === 'email').length },
+    { id: 'wallet', label: 'Ví Crypto Drainer', icon: Wallet, count: entities.filter(e => e.type === 'wallet').length },
+    { id: 'company', label: 'Công ty ma / Tổ chức', icon: Building2, count: entities.filter(e => e.type === 'company').length }
   ], [entities]);
 
   // Filtered & sorted entities
@@ -99,16 +100,29 @@ export function ScamDatabaseView() {
     link.click();
     document.body.removeChild(link);
 
-    showToast('Export Complete', `Successfully exported ${filteredEntities.length} threat intelligence entities to CSV.`, 'success');
+    showToast('Xuất tệp thành công', `Đã xuất ${filteredEntities.length} đối tượng tình báo lừa đảo sang tệp CSV.`, 'success');
   };
 
   const hasActiveFilters = searchTerm || filterType !== 'ALL' || filterRisk !== 'ALL';
 
+  const mobileStyles = `
+    @media (max-width: 768px) {
+      .header-container { padding: 16px !important; }
+      .header-container h1 { font-size: 20px !important; }
+      .header-container p { font-size: 13px !important; }
+      .header-container button { width: 100% !important; justify-content: center !important; }
+      .filter-bar { grid-template-columns: 1fr !important; }
+      .footer-container { flex-direction: column !important; gap: 8px !important; text-align: center !important; }
+    }
+  `;
+
   return (
     <PageTransition>
+      <style>{mobileStyles}</style>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
         {/* Header */}
         <div
+          className="header-container"
           style={{
             display: 'flex',
             alignItems: 'flex-start',
@@ -139,16 +153,16 @@ export function ScamDatabaseView() {
                 }}
               >
                 <Database size={13} />
-                Global Threat Repository
+                Kho Tình Báo An Ninh Quốc Gia & Toàn Cầu
               </span>
               <span style={{ fontSize: 12, color: '#94A3B8' }}>•</span>
-              <span style={{ fontSize: 12, color: '#64748B' }}>{entities.length} Total Verified Entities</span>
+              <span style={{ fontSize: 12, color: '#64748B' }}>{entities.length} đối tượng đã kiểm duyệt</span>
             </div>
             <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em', margin: 0 }}>
-              Centralized Scam Intelligence Database
+              Cơ sở Dữ liệu Tình báo Lừa đảo & Mối đe dọa Số
             </h1>
-            <p style={{ margin: '6px 0 0', fontSize: 14, color: '#475569', maxWidth: 640 }}>
-              Explore verified fraud nodes, crypto drainers, deceptive telecom endpoints, shell corporations, and phishing syndicates.
+            <p style={{ margin: '6px 0 0', fontSize: 14, color: '#475569', maxWidth: 680 }}>
+              Tổng hợp và tra cứu dữ liệu thực tế về các tài khoản ngân hàng lừa đảo (CheckScam), website mạo danh ngân hàng / cơ quan thuế / VNeID, số điện thoại mạo danh công an và ví tiền ảo độc hại.
             </p>
           </div>
 
@@ -166,7 +180,7 @@ export function ScamDatabaseView() {
             }}
           >
             <Download size={14} color="#2563EB" />
-            <span>Export CSV Dataset</span>
+            <span>Xuất tệp CSV Dataset</span>
           </button>
         </div>
 
@@ -190,13 +204,13 @@ export function ScamDatabaseView() {
             border: '1px solid #E2E8F0'
           }}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 2fr) minmax(160px, 1fr) minmax(160px, 1fr) auto', gap: 12, alignItems: 'center' }}>
+          <div className="filter-bar" style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 2fr) minmax(160px, 1fr) minmax(160px, 1fr) auto', gap: 12, alignItems: 'center' }}>
             {/* Search Input */}
             <div style={{ position: 'relative' }}>
               <Search size={15} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
               <input
                 type="text"
-                placeholder="Search identifier, domain, wallet, brand..."
+                placeholder="Tìm số tài khoản ngân hàng, tên miền, SĐT, chủ tài khoản, đơn vị mạo danh..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -256,11 +270,11 @@ export function ScamDatabaseView() {
                 cursor: 'pointer'
               }}
             >
-              <option value="ALL">All Risk Levels</option>
-              <option value="CRITICAL">Critical (81–100)</option>
-              <option value="HIGH">High (61–80)</option>
-              <option value="MEDIUM">Medium (41–60)</option>
-              <option value="SAFE">Safe / Clean (0–40)</option>
+              <option value="ALL">Tất cả mức độ rủi ro</option>
+              <option value="CRITICAL">Nguy hiểm / Scam (81–100)</option>
+              <option value="HIGH">Rủi ro cao (61–80)</option>
+              <option value="MEDIUM">Rủi ro trung bình (41–60)</option>
+              <option value="SAFE">An toàn / Đã xác minh (0–40)</option>
             </select>
 
             {/* Sort By */}
@@ -278,10 +292,10 @@ export function ScamDatabaseView() {
                 cursor: 'pointer'
               }}
             >
-              <option value="riskDesc">Sort: Highest Risk</option>
-              <option value="riskAsc">Sort: Lowest Risk</option>
-              <option value="reportsDesc">Sort: Most Reports</option>
-              <option value="nameAsc">Sort: Alphabetical</option>
+              <option value="riskDesc">Sắp xếp: Rủi ro cao nhất</option>
+              <option value="riskAsc">Sắp xếp: Rủi ro thấp nhất</option>
+              <option value="reportsDesc">Sắp xếp: Nhiều báo cáo nhất</option>
+              <option value="nameAsc">Sắp xếp: Theo chữ cái (A-Z)</option>
             </select>
 
             {/* Reset Filters */}
@@ -302,7 +316,7 @@ export function ScamDatabaseView() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                Clear Filters
+                Xóa bộ lọc
               </button>
             )}
           </div>
@@ -322,9 +336,9 @@ export function ScamDatabaseView() {
           {filteredEntities.length === 0 ? (
             <div style={{ padding: 32 }}>
               <EmptyState
-                title="No threat entities match your filter"
-                description="Try clearing search queries or switching vector categories."
-                actionLabel="Reset All Filters"
+                title="Không có đối tượng nào khớp với bộ lọc"
+                description="Hãy thử xóa từ khóa tìm kiếm hoặc chuyển sang phân loại khác."
+                actionLabel="Đặt lại toàn bộ bộ lọc"
                 onAction={() => {
                   setSearchTerm('');
                   setFilterType('ALL');
@@ -338,14 +352,14 @@ export function ScamDatabaseView() {
               <table className="sec-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Entity Identifier</th>
-                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Vector</th>
-                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Risk Level</th>
-                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Threat Category</th>
-                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Reports</th>
-                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Status</th>
-                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Last Observed</th>
-                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569', textAlign: 'right' }}>Actions</th>
+                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Định danh / Tên mục tiêu</th>
+                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Phân loại</th>
+                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Mức rủi ro</th>
+                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Hành vi / Vụ việc</th>
+                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Lượt tố cáo</th>
+                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Trạng thái</th>
+                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569' }}>Ghi nhận gần nhất</th>
+                    <th style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: '#475569', textAlign: 'right' }}>Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -384,7 +398,7 @@ export function ScamDatabaseView() {
                             textTransform: 'uppercase'
                           }}
                         >
-                          {ent.type}
+                          {ent.type === 'bank' ? 'NGÂN HÀNG' : ent.type === 'domain' ? 'TÊN MIỀN' : ent.type === 'phone' ? 'SĐT' : ent.type === 'email' ? 'EMAIL' : ent.type === 'wallet' ? 'VÍ' : ent.type}
                         </span>
                       </td>
                       <td style={{ padding: '14px 16px' }}>
@@ -392,7 +406,7 @@ export function ScamDatabaseView() {
                       </td>
                       <td style={{ padding: '14px 16px' }}>
                         <span style={{ fontSize: 12, color: '#334155', fontWeight: 500 }}>
-                          {ent.category || 'Threat Asset'}
+                          {ent.category || 'Mối đe dọa'}
                         </span>
                       </td>
                       <td style={{ padding: '14px 16px' }}>
@@ -429,7 +443,7 @@ export function ScamDatabaseView() {
                             }}
                             onClick={() => navigateToEntity(ent.id)}
                           >
-                            Investigate
+                            Điều tra
                           </button>
                           <button
                             className="btn btn-ghost btn-sm"
@@ -440,7 +454,7 @@ export function ScamDatabaseView() {
                               color: ent.watchlist ? '#2563EB' : '#94A3B8'
                             }}
                             onClick={() => toggleWatchlist(ent.id)}
-                            title={ent.watchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
+                            title={ent.watchlist ? 'Bỏ theo dõi' : 'Thêm vào danh sách theo dõi'}
                           >
                             <Bookmark size={14} fill={ent.watchlist ? '#2563EB' : 'none'} />
                           </button>
@@ -455,6 +469,7 @@ export function ScamDatabaseView() {
 
           {/* Table Footer with counter */}
           <div
+            className="footer-container"
             style={{
               padding: '14px 20px',
               background: '#F8FAFC',
@@ -467,11 +482,11 @@ export function ScamDatabaseView() {
             }}
           >
             <span>
-              Showing <strong style={{ color: '#0F172A' }}>{filteredEntities.length}</strong> of{' '}
-              <strong style={{ color: '#0F172A' }}>{entities.length}</strong> verified threat indicators
+              Đang hiển thị <strong style={{ color: '#0F172A' }}>{filteredEntities.length}</strong> trên tổng số{' '}
+              <strong style={{ color: '#0F172A' }}>{entities.length}</strong> đối tượng tình báo an ninh
             </span>
             <span>
-              Real-time updates synced with TOPDOO Threat Feed Network
+              Dữ liệu được cập nhật thời gian thực từ TOPDOO Threat Feed Network & CheckScam.vn
             </span>
           </div>
         </div>

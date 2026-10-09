@@ -86,9 +86,26 @@ export function ReportScamView() {
     showToast('Copied to Clipboard', text, 'success');
   };
 
+  const mobileStyles = `
+    @media (max-width: 768px) {
+      .report-container { padding: 16px !important; gap: 16px !important; }
+      .report-card { padding: 20px 16px !important; }
+      .stepper-container { justify-content: flex-start !important; gap: 20px !important; padding: 12px 16px !important; }
+      .grid-options { grid-template-columns: 1fr !important; }
+      .btn-group { flex-direction: column-reverse !important; gap: 12px !important; }
+      .btn-group button { width: 100% !important; justify-content: center !important; }
+      .btn-group-single { width: 100% !important; }
+      .btn-group-single button { width: 100% !important; justify-content: center !important; }
+      .summary-box { padding: 16px !important; }
+      .success-box { padding: 32px 20px !important; }
+      .tracking-box { padding: 16px 20px !important; }
+    }
+  `;
+
   return (
     <PageTransition>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 880, margin: '0 auto', paddingBottom: 40 }}>
+      <style>{mobileStyles}</style>
+      <div className="report-container" style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 880, margin: '0 auto', paddingBottom: 40 }}>
         {/* Header */}
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 999, marginBottom: 8 }}>
@@ -101,7 +118,7 @@ export function ReportScamView() {
           </p>
 
           {/* Modern Stepper */}
-          <div style={{
+          <div className="stepper-container" style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -162,7 +179,7 @@ export function ReportScamView() {
 
         {/* STEP 1: ENTITY TYPE & IDENTIFIER */}
         {currentStep === 1 && (
-          <div style={{ background: '#FFFFFF', padding: 28, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+          <div className="report-card" style={{ background: '#FFFFFF', padding: 28, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>
               Step 1: Select Entity Type & Target
             </h2>
@@ -170,7 +187,7 @@ export function ReportScamView() {
               What specific cyber threat vector or identifier are you submitting for investigation?
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 12, marginBottom: 24 }}>
+            <div className="grid-options" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 12, marginBottom: 24 }}>
               {entityTypes.map(t => {
                 const IconComponent = t.icon;
                 const isSelected = formData.type === t.id;
@@ -281,7 +298,7 @@ export function ReportScamView() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 28, paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
+            <div className="btn-group-single" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 28, paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
               <button
                 className="btn btn-primary"
                 disabled={!formData.identifier.trim()}
@@ -297,7 +314,7 @@ export function ReportScamView() {
 
         {/* STEP 2: INCIDENT CATEGORY */}
         {currentStep === 2 && (
-          <div style={{ background: '#FFFFFF', padding: 28, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+          <div className="report-card" style={{ background: '#FFFFFF', padding: 28, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>
               Step 2: Incident Classification
             </h2>
@@ -305,7 +322,7 @@ export function ReportScamView() {
               Choose the primary fraudulent scheme, methodology, or exploit observed.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12, marginBottom: 24 }}>
+            <div className="grid-options" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12, marginBottom: 24 }}>
               {scamCategories.map(c => {
                 const isSelected = formData.category === c.id;
                 return (
@@ -337,7 +354,7 @@ export function ReportScamView() {
               })}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
+            <div className="btn-group" style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
               <button className="btn btn-secondary" onClick={prevStep} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 <ArrowLeft size={14} />
                 <span>Back</span>
@@ -352,7 +369,7 @@ export function ReportScamView() {
 
         {/* STEP 3: DESCRIPTION & LOSS NARRATIVE */}
         {currentStep === 3 && (
-          <div style={{ background: '#FFFFFF', padding: 28, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+          <div className="report-card" style={{ background: '#FFFFFF', padding: 28, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>
               Step 3: Description & Incident Narrative
             </h2>
@@ -429,7 +446,7 @@ export function ReportScamView() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 28, paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
+            <div className="btn-group" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 28, paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
               <button className="btn btn-secondary" onClick={prevStep} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 <ArrowLeft size={14} />
                 <span>Back</span>
@@ -449,7 +466,7 @@ export function ReportScamView() {
 
         {/* STEP 4: FORENSIC EVIDENCE */}
         {currentStep === 4 && (
-          <div style={{ background: '#FFFFFF', padding: 28, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+          <div className="report-card" style={{ background: '#FFFFFF', padding: 28, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>
               Step 4: Supporting Forensic Evidence
             </h2>
@@ -533,7 +550,7 @@ export function ReportScamView() {
               ))}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
+            <div className="btn-group" style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
               <button className="btn btn-secondary" onClick={prevStep} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 <ArrowLeft size={14} />
                 <span>Back</span>
@@ -548,7 +565,7 @@ export function ReportScamView() {
 
         {/* STEP 5: REVIEW */}
         {currentStep === 5 && (
-          <div style={{ background: '#FFFFFF', padding: 28, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+          <div className="report-card" style={{ background: '#FFFFFF', padding: 28, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>
               Step 5: Review Submission
             </h2>
@@ -556,7 +573,7 @@ export function ReportScamView() {
               Verify the details below before lodging this threat report into the TOPDOO verification queue.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, background: '#F8FAFC', padding: 20, borderRadius: 12, border: '1px solid #E2E8F0', marginBottom: 24 }}>
+            <div className="summary-box" style={{ display: 'flex', flexDirection: 'column', gap: 14, background: '#F8FAFC', padding: 20, borderRadius: 12, border: '1px solid #E2E8F0', marginBottom: 24 }}>
               <div>
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Target Entity ({formData.type})</span>
                 <div style={{ fontWeight: 800, fontSize: 16, color: '#0F172A', marginTop: 2 }}>{formData.identifier}</div>
@@ -587,7 +604,7 @@ export function ReportScamView() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
+            <div className="btn-group" style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 20, borderTop: '1px solid #E2E8F0' }}>
               <button className="btn btn-secondary" onClick={prevStep} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 <ArrowLeft size={14} />
                 <span>Back</span>
@@ -602,7 +619,7 @@ export function ReportScamView() {
 
         {/* STEP 6: SUBMISSION COMPLETE */}
         {currentStep === 6 && (
-          <div style={{ background: '#FFFFFF', padding: 48, borderRadius: 16, border: '1px solid #E2E8F0', textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+          <div className="success-box" style={{ background: '#FFFFFF', padding: 48, borderRadius: 16, border: '1px solid #E2E8F0', textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#ECFDF5', border: '1px solid #A7F3D0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <CheckCircle size={32} color="#059669" />
             </div>
@@ -614,7 +631,7 @@ export function ReportScamView() {
               Your threat intelligence submission has been cataloged and routed to the automated sandbox crawler and analyst verification queue.
             </p>
 
-            <div style={{
+            <div className="tracking-box" style={{
               display: 'inline-flex',
               flexDirection: 'column',
               gap: 8,
@@ -641,7 +658,7 @@ export function ReportScamView() {
               <span style={{ fontSize: 12, color: '#D97706', fontWeight: 700 }}>Status: Under Review (Priority Triage)</span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <div className="btn-group" style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
               <button
                 className="btn btn-secondary"
                 onClick={() => {

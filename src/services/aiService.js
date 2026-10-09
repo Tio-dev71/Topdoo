@@ -73,8 +73,8 @@ export const FALLBACK_CHAIN = {
 export const get9RouterConfig = () => {
   if (typeof window === 'undefined') {
     return {
-      baseUrl: 'http://localhost:20128/v1',
-      apiKey: 'sk-tiodev-chatbot-secret',
+      baseUrl: '/api/9router/v1',
+      apiKey: '',
       enabled: true
     };
   }
@@ -84,8 +84,8 @@ export const get9RouterConfig = () => {
   const storedEnabled = localStorage.getItem('topdoo_9router_enabled');
 
   return {
-    baseUrl: storedUrl || (import.meta.env.VITE_9ROUTER_URL || 'http://localhost:20128/v1'),
-    apiKey: storedKey || (import.meta.env.VITE_9ROUTER_KEY || 'sk-tiodev-chatbot-secret'),
+    baseUrl: storedUrl || (import.meta.env.VITE_9ROUTER_URL || '/api/9router/v1'),
+    apiKey: storedKey || (import.meta.env.VITE_9ROUTER_KEY || ''),
     enabled: storedEnabled !== null ? storedEnabled === 'true' : true
   };
 };

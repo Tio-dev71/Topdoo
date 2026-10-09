@@ -27,7 +27,7 @@ import { MarketingHeader } from '../../components/layout/MarketingHeader';
 import { MarketingFooter } from '../../components/layout/MarketingFooter';
 
 export function TopdooDeveloperView() {
-  const { navigateMarketing, setMode, setCurrentView, showToast } = useSecurity();
+  const { navigateMarketing, setMode, setCurrentView, showToast, user } = useSecurity();
 
   // Modals state
   const [isQuickstartModalOpen, setIsQuickstartModalOpen] = useState(false);
@@ -139,9 +139,9 @@ console.log(response.content);`,
                 <button
                   type="button"
                   className="btn-dev-primary"
-                  onClick={() => navigateMarketing('topdoo-developer-login')}
+                  onClick={() => navigateMarketing(user ? 'topdoo-developer-dashboard' : 'topdoo-developer-login')}
                 >
-                  <span>Bắt đầu xây dựng</span>
+                  <span>{user ? 'Vào Developer Dashboard' : 'Bắt đầu xây dựng'}</span>
                   <ArrowRight size={16} />
                 </button>
 
@@ -397,9 +397,9 @@ console.log(response.content);`,
                 <button
                   type="button"
                   className="btn-dev-cta-white"
-                  onClick={() => navigateMarketing('topdoo-developer-login')}
+                  onClick={() => navigateMarketing(user ? 'topdoo-developer-dashboard' : 'topdoo-developer-login')}
                 >
-                  <span>Bắt đầu xây dựng</span>
+                  <span>{user ? 'Vào Developer Dashboard' : 'Bắt đầu xây dựng'}</span>
                   <ArrowRight size={15} />
                 </button>
               </div>

@@ -116,4 +116,18 @@ function topdooVoicePlugin() {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), topdooVoicePlugin()],
+  server: {
+    proxy: {
+      '/api/9router': {
+        target: 'http://localhost:20128',
+        rewrite: (path) => path.replace(/^\/api\/9router/, ''),
+        changeOrigin: true
+      },
+      '/api/voicebox': {
+        target: 'http://localhost:17493',
+        rewrite: (path) => path.replace(/^\/api\/voicebox/, ''),
+        changeOrigin: true
+      }
+    }
+  }
 })

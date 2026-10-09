@@ -12,7 +12,11 @@ import {
   Menu,
   ChevronDown,
   Building,
-  LogOut
+  LogOut,
+  ArrowLeft,
+  Home,
+  LogIn,
+  Settings
 } from 'lucide-react';
 import { useSecurity } from '../../context/SecurityContext';
 
@@ -20,6 +24,7 @@ export function Header() {
   const {
     mode,
     setMode,
+    setMarketingRoute,
     setCurrentView,
     setIsSearchOpen,
     alerts,
@@ -28,6 +33,8 @@ export function Header() {
     showToast,
     user,
     signOut,
+    openAuthModal,
+    openCreditModal,
     userRole,
     setUserRole,
     ROLES,
@@ -47,6 +54,36 @@ export function Header() {
   return (
     <header className="top-header">
       <div className="header-left">
+        {/* Quay lại màn hình chính Topdoo */}
+        <button
+          className="btn-exit-console-pill"
+          onClick={() => {
+            setMode('marketing');
+            setMarketingRoute('topdoo-security');
+            if (typeof window !== 'undefined') window.history.pushState({}, '', '/topdoo-security');
+          }}
+          title="Rời khỏi SecOps Console và quay lại Trang chủ Topdoo Security"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 14px',
+            fontSize: 12.5,
+            fontWeight: 700,
+            color: '#1D4ED8',
+            background: '#EFF6FF',
+            border: '1px solid #BFDBFE',
+            borderRadius: 8,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            transition: 'all 0.15s ease',
+            boxShadow: '0 1px 2px rgba(37, 99, 235, 0.08)'
+          }}
+        >
+          <ArrowLeft size={14} />
+          <span>⬅️ Quay lại Trang chủ</span>
+        </button>
+
         {/* Mobile menu toggle */}
         <button
           className="btn-icon"
@@ -176,24 +213,33 @@ export function Header() {
           <span>{creditBalance !== undefined ? creditBalance.toLocaleString() : '50,000'} Credits</span>
         </div>
 
-        {/* View mode toggle (Marketing vs App) */}
+        {/* Quay lại Trang chủ Topdoo */}
         <button
-          className="btn btn-secondary btn-sm"
-          onClick={() => setMode(mode === 'app' ? 'marketing' : 'app')}
-          title="Chuyển đổi giữa Bảng điều khiển và Trang web công khai"
-          style={{ fontSize: 12, padding: '4px 10px' }}
+          className="btn-return-home-main"
+          onClick={() => {
+            setMode('marketing');
+            setMarketingRoute('topdoo-security');
+            if (typeof window !== 'undefined') window.history.pushState({}, '', '/topdoo-security');
+          }}
+          title="Rời khỏi SecOps Console và quay lại Trang chủ Topdoo Security"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 14px',
+            fontSize: 12.5,
+            fontWeight: 700,
+            color: '#1E293B',
+            background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%)',
+            border: '1px solid #CBD5E1',
+            borderRadius: 8,
+            cursor: 'pointer',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
+            transition: 'all 0.15s ease'
+          }}
         >
-          {mode === 'app' ? (
-            <>
-              <ExternalLink size={12} />
-              <span>Trang chủ</span>
-            </>
-          ) : (
-            <>
-              <Shield size={12} />
-              <span>Bảng điều khiển</span>
-            </>
-          )}
+          <Home size={14} style={{ color: '#2563EB' }} />
+          <span>Trang chủ Topdoo</span>
         </button>
 
         {/* Notifications Popover */}
@@ -324,37 +370,85 @@ export function Header() {
         </button>
 
         {/* User Workspace Profile */}
-        <div style={{ position: 'relative' }}>
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: 10, paddingLeft: 8, borderLeft: '1px solid var(--border-subtle)', cursor: 'pointer' }}
-            onClick={() => setProfileOpen(prev => !prev)}
-          >
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
+          {user ? (
             <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #1E293B, #3B82F6)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 600,
-                fontSize: 12,
-                color: '#FFFFFF',
-                border: '1px solid rgba(255, 255, 255, 0.15)'
-              }}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, paddingLeft: 8, borderLeft: '1px solid var(--border-subtle)', cursor: 'pointer' }}
+              onClick={() => setProfileOpen(prev => !prev)}
             >
-              {user?.email ? user.email.substring(0, 2).toUpperCase() : 'TS'}
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #1E293B, #3B82F6)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 700,
+                  fontSize: 12,
+                  color: '#FFFFFF',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  overflow: 'hidden'
+                }}
+              >
+                {user.avatar ? (
+                  <img src={user.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  (user.fullName || user.email || 'TS').substring(0, 2).toUpperCase()
+                )}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                  {user.fullName || user.email.split('@')[0]}
+                </span>
+                <span style={{ fontSize: 10, color: '#059669', fontWeight: 600 }}>
+                  {user.plan ? `Gói ${user.plan}` : 'Đã đăng nhập'}
+                </span>
+              </div>
+              <ChevronDown size={13} color="var(--text-muted)" />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-                {user?.email ? user.email.split('@')[0] : 'Topdoo SecOps'}
-              </span>
-              <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
-                {user ? 'Đã đăng nhập' : 'Gói Enterprise • Node #04'}
-              </span>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 8, borderLeft: '1px solid var(--border-subtle)' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+                onClick={() => setProfileOpen(prev => !prev)}
+                title="Tài khoản khách (Demo)"
+              >
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: '#F1F5F9',
+                    border: '1px solid #CBD5E1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#64748B'
+                  }}
+                >
+                  <User size={16} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                    Khách tham quan
+                  </span>
+                  <span style={{ fontSize: 10, color: '#D97706', fontWeight: 600 }}>
+                    Chưa đăng nhập
+                  </span>
+                </div>
+              </div>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => openAuthModal('login')}
+                style={{ fontSize: 11.5, padding: '4px 10px', gap: 5, fontWeight: 700 }}
+              >
+                <LogIn size={13} />
+                <span>Đăng nhập</span>
+              </button>
             </div>
-          </div>
+          )}
 
           {profileOpen && (
             <div
@@ -362,7 +456,7 @@ export function Header() {
                 position: 'absolute',
                 top: 44,
                 right: 0,
-                width: 220,
+                width: 250,
                 background: 'var(--bg-card-elevated)',
                 border: '1px solid var(--border-default)',
                 borderRadius: 'var(--radius-md)',
@@ -371,29 +465,73 @@ export function Header() {
                 padding: '8px 0'
               }}
             >
-              <button
-                className="btn btn-ghost"
-                style={{ width: '100%', justifyContent: 'flex-start', padding: '8px 16px', fontSize: 13, borderRadius: 0 }}
-                onClick={() => {
-                  setProfileOpen(false);
-                  setCurrentView('settings');
-                }}
-              >
-                <Settings size={14} />
-                <span>Cài đặt tài khoản</span>
-              </button>
-              {user && signOut && (
-                <button
-                  className="btn btn-ghost"
-                  style={{ width: '100%', justifyContent: 'flex-start', padding: '8px 16px', fontSize: 13, borderRadius: 0, color: '#DC2626' }}
-                  onClick={() => {
-                    setProfileOpen(false);
-                    signOut();
-                  }}
-                >
-                  <LogOut size={14} />
-                  <span>Đăng xuất</span>
-                </button>
+              {user ? (
+                <>
+                  <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-subtle)' }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)' }}>
+                      {user.fullName || user.email}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                      {user.email}
+                    </div>
+                  </div>
+                  <button
+                    className="btn btn-ghost"
+                    style={{ width: '100%', justifyContent: 'flex-start', padding: '8px 16px', fontSize: 13, borderRadius: 0 }}
+                    onClick={() => {
+                      setProfileOpen(false);
+                      setCurrentView('settings');
+                    }}
+                  >
+                    <Settings size={14} />
+                    <span>Cài đặt tài khoản</span>
+                  </button>
+                  <button
+                    className="btn btn-ghost"
+                    style={{ width: '100%', justifyContent: 'flex-start', padding: '8px 16px', fontSize: 13, borderRadius: 0, color: '#DC2626' }}
+                    onClick={() => {
+                      setProfileOpen(false);
+                      signOut();
+                    }}
+                  >
+                    <LogOut size={14} />
+                    <span>Đăng xuất</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-subtle)' }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)' }}>
+                      Chế độ Khách (Guest Demo)
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                      Đăng nhập tài khoản Topdoo để lưu lịch sử kiểm tra, quản lý danh sách theo dõi và sử dụng API bảo mật.
+                    </div>
+                  </div>
+                  <div style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      style={{ width: '100%', justifyContent: 'center', fontSize: 12, padding: '7px' }}
+                      onClick={() => {
+                        setProfileOpen(false);
+                        openAuthModal('login');
+                      }}
+                    >
+                      <LogIn size={14} />
+                      <span>Đăng nhập ngay</span>
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      style={{ width: '100%', justifyContent: 'center', fontSize: 12, padding: '6px' }}
+                      onClick={() => {
+                        setProfileOpen(false);
+                        openAuthModal('register');
+                      }}
+                    >
+                      <span>Tạo tài khoản mới</span>
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           )}

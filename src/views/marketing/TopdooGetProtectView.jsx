@@ -25,20 +25,35 @@ import { MarketingHeader } from '../../components/layout/MarketingHeader';
 import { MarketingFooter } from '../../components/layout/MarketingFooter';
 
 export function TopdooGetProtectView() {
-  const { navigateMarketing, setMode, setCurrentView, showToast } = useSecurity();
+  const { navigateMarketing, setMode, setCurrentView, showToast, user } = useSecurity();
 
   // Form state
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
+    fullName: user?.fullName || '',
+    email: user?.email || '',
     phone: '',
     password: '',
     agreeTerms: true
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1); // 1: Tạo tài khoản, 2: Chọn gói, 3: Kích hoạt
+  // Nếu đã đăng nhập thì tự động chuyển sang Bước 2: Chọn gói bảo vệ
+  const [currentStep, setCurrentStep] = useState(user ? 2 : 1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('free'); // 'free' or 'pro'
+
+  // Đồng bộ khi user thay đổi
+  React.useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: prev.fullName || user.fullName || '',
+        email: prev.email || user.email || ''
+      }));
+      if (currentStep === 1) {
+        setCurrentStep(2);
+      }
+    }
+  }, [user]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -254,24 +269,82 @@ export function TopdooGetProtectView() {
 
                 {/* 3-Step Stepper */}
                 <div className="get-protect-stepper">
-                  <div className="step-node active completed" style={{ cursor: 'pointer' }} onClick={() => setCurrentStep(1)}>
-                    <div className="step-circle">1</div>
-                    <span className="step-label">Tạo tài khoản</span>
+                  <div
+                    className={`step-node ${currentStep >= 1 ? 'active' : ''} ${user || currentStep > 1 ? 'completed' : ''}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setCurrentStep(1)}
+                  >
+                    <div className="step-circle">{user ? <Check size={13} strokeWidth={3} /> : '1'}</div>
+                    <span className="step-label">Tài khoản</span>
                   </div>
                   <div className="step-line" />
-                  <div className="step-node" style={{ cursor: 'pointer' }} onClick={() => navigateMarketing('topdoo-plan-security')}>
+                  <div
+                    className={`step-node ${currentStep === 2 ? 'active' : ''}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      setCurrentStep(2);
+                      navigateMarketing('topdoo-plan-security');
+                    }}
+                  >
                     <div className="step-circle">2</div>
                     <span className="step-label">Chọn gói</span>
                   </div>
                   <div className="step-line" />
-                  <div className="step-node">
+                  <div className={`step-node ${currentStep === 3 ? 'active' : ''}`}>
                     <div className="step-circle">3</div>
                     <span className="step-label">Kích hoạt</span>
                   </div>
                 </div>
 
-                {/* STEP 1: Registration Form */}
+                {/* STEP 1: Registration Form or Authenticated User Card */}
                 {currentStep === 1 && (
+                  user ? (
+                    <div className="authenticated-user-card" style={{
+                      padding: '28px 24px',
+                      background: 'linear-gradient(135deg, rgba(240,253,244,0.95) 0%, rgba(220,252,231,0.7) 100%)',
+                      border: '1px solid #86EFAC',
+                      borderRadius: '16px',
+                      textAlign: 'center',
+                      boxShadow: '0 8px 20px -6px rgba(5,150,105,0.12)',
+                      marginBottom: '1rem'
+                    }}>
+                      <div style={{
+                        width: '56px',
+                        height: '56px',
+                        borderRadius: '50%',
+                        background: '#DCFCE7',
+                        border: '2px solid #86EFAC',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 14px',
+                        color: '#059669'
+                      }}>
+                        <CheckCircle2 size={32} />
+                      </div>
+                      <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#065F46', marginBottom: '6px' }}>
+                        Tài khoản đã sẵn sàng!
+                      </h3>
+                      <p style={{ fontSize: '14px', color: '#047857', marginBottom: '4px' }}>
+                        Bạn đang đăng nhập với: <strong>{user.fullName || user.email}</strong>
+                      </p>
+                      <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '20px' }}>
+                        {user.email} • Quyền hạn: <span style={{ fontWeight: 600, color: '#059669' }}>{user.role || 'USER'}</span>
+                      </p>
+                      <button
+                        type="button"
+                        className="btn-form-submit"
+                        style={{ width: '100%', justifyContent: 'center' }}
+                        onClick={() => {
+                          setCurrentStep(2);
+                          navigateMarketing('topdoo-plan-security');
+                        }}
+                      >
+                        <span>Tiếp tục chọn gói bảo vệ ngay</span>
+                        <ArrowRight size={17} />
+                      </button>
+                    </div>
+                  ) : (
                   <form onSubmit={handleFormSubmit} className="get-protect-form">
                     {/* Field 1: Họ và tên */}
                     <div className="form-field-group">
@@ -442,6 +515,7 @@ export function TopdooGetProtectView() {
                       </button>
                     </div>
                   </form>
+                  )
                 )}
 
                 {/* STEP 2: Chọn gói bảo vệ */}

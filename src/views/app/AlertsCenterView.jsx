@@ -48,11 +48,11 @@ export function AlertsCenterView() {
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 999, marginBottom: 8 }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2563EB' }} />
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#1D4ED8' }}>Incident Triage & Alert Dispatch</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#1D4ED8' }}>Phân loại Sự cố & Điều phối Cảnh báo An ninh</span>
             </div>
-            <h1 className="heading-xl">Security Alert Center</h1>
+            <h1 className="heading-xl">Trung tâm Cảnh báo An ninh</h1>
             <p className="subheading" style={{ marginTop: 4, maxWidth: 840 }}>
-              Prioritized threat incidents, critical domain migrations, permit2 drain spikes, and credential phishing bursts requiring operational response.
+              Ưu tiên xử lý các sự cố lừa đảo nghiêm trọng, website mạo danh ngân hàng / VNeID / thuế, số tài khoản lừa đảo mới phát sinh và các chiến dịch mã độc nguy hiểm.
             </p>
           </div>
         </div>
@@ -60,10 +60,10 @@ export function AlertsCenterView() {
         {/* Filter Pills */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {[
-            { id: 'ALL', label: 'All Alerts', count: alerts.length },
-            { id: 'Critical', label: 'Critical Severity', count: criticalCount },
-            { id: 'High', label: 'High Priority', count: highCount },
-            { id: 'Medium', label: 'Medium Level', count: alerts.filter(a => a.severity === 'Medium').length }
+            { id: 'ALL', label: 'Tất cả cảnh báo', count: alerts.length },
+            { id: 'Critical', label: 'Mức Nghiêm trọng', count: criticalCount },
+            { id: 'High', label: 'Ưu tiên cao', count: highCount },
+            { id: 'Medium', label: 'Mức Trung bình', count: alerts.filter(a => a.severity === 'Medium').length }
           ].map(tab => {
             const isActive = filterSeverity.toLowerCase() === tab.id.toLowerCase();
             return (
@@ -108,8 +108,8 @@ export function AlertsCenterView() {
             {filteredAlerts.length === 0 ? (
               <div style={{ background: '#FFFFFF', padding: 36, borderRadius: 14, border: '1px solid #E2E8F0', textAlign: 'center', color: '#64748B' }}>
                 <Bell size={32} color="#94A3B8" style={{ margin: '0 auto 8px' }} />
-                <div style={{ fontWeight: 600, fontSize: 14, color: '#0F172A' }}>No alerts in this severity category</div>
-                <div style={{ fontSize: 12, marginTop: 4 }}>All threat vectors are currently stabilized within acceptable boundaries.</div>
+                <div style={{ fontWeight: 600, fontSize: 14, color: '#0F172A' }}>Không có cảnh báo trong danh mục này</div>
+                <div style={{ fontSize: 12, marginTop: 4 }}>Tất cả các vector đe dọa hiện đều nằm trong ngưỡng kiểm soát an toàn.</div>
               </div>
             ) : (
               filteredAlerts.map(alert => {
@@ -150,7 +150,7 @@ export function AlertsCenterView() {
                           color: badgeColor,
                           border: `1px solid ${badgeBorder}`
                         }}>
-                          {alert.severity.toUpperCase()}
+                          {isCritical ? 'NGHIÊM TRỌNG' : isHigh ? 'ƯU TIÊN CAO' : 'TRUNG BÌNH'}
                         </span>
                         <span className="mono" style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>
                           {alert.id}
@@ -164,7 +164,7 @@ export function AlertsCenterView() {
                     </div>
 
                     <div style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span>Target:</span>
+                      <span>Mục tiêu:</span>
                       <TechnicalMono value={alert.entityIdentifier} length={20} truncate canCopy={false} />
                     </div>
                   </div>
@@ -199,7 +199,7 @@ export function AlertsCenterView() {
                     color: selectedAlert.severity === 'Critical' ? '#DC2626' : '#C2410C',
                     border: `1px solid ${selectedAlert.severity === 'Critical' ? '#FECACA' : '#FFEDD5'}`
                   }}>
-                    {selectedAlert.severity.toUpperCase()} ALERT • {selectedAlert.category}
+                    {selectedAlert.severity === 'Critical' ? 'CẢNH BÁO KHẨN CẤP' : 'CẢNH BÁO AN NINH'} • {selectedAlert.category}
                   </span>
                   <span style={{ fontSize: 12, color: '#64748B' }}>{selectedAlert.timestamp}</span>
                 </div>
@@ -213,7 +213,7 @@ export function AlertsCenterView() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={{ background: '#F8FAFC', padding: 14, borderRadius: 10, border: '1px solid #E2E8F0' }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>
-                    What Triggered This Incident?
+                    Nguyên nhân Kích hoạt Sự cố
                   </div>
                   <div style={{ fontSize: 13, color: '#1E293B', lineHeight: 1.6 }}>
                     {selectedAlert.reason}
@@ -222,7 +222,7 @@ export function AlertsCenterView() {
 
                 <div style={{ background: '#F8FAFC', padding: 14, borderRadius: 10, border: '1px solid #E2E8F0' }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>
-                    Operational & Security Impact
+                    Tác động An ninh & Vận hành
                   </div>
                   <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>
                     {selectedAlert.details}
@@ -231,7 +231,7 @@ export function AlertsCenterView() {
 
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
-                    Target Malicious Infrastructure
+                    Hạ tầng / Đối tượng Vi phạm Mục tiêu
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC', padding: 12, borderRadius: 10, border: '1px solid #E2E8F0' }}>
                     <TechnicalMono value={selectedAlert.entityIdentifier} />
@@ -240,7 +240,7 @@ export function AlertsCenterView() {
                       onClick={() => navigateToEntity(selectedAlert.entityId)}
                       style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
                     >
-                      <span>View Dossier</span>
+                      <span>Xem hồ sơ</span>
                       <ExternalLink size={12} />
                     </button>
                   </div>
@@ -255,7 +255,7 @@ export function AlertsCenterView() {
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#64748B' }}
                 >
                   <VolumeX size={14} />
-                  <span>Mute Category</span>
+                  <span>Tạm tắt phân loại này</span>
                 </button>
 
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -265,14 +265,14 @@ export function AlertsCenterView() {
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
                   >
                     <CheckCircle size={14} />
-                    <span>Mark as Resolved</span>
+                    <span>Đánh dấu đã xử lý</span>
                   </button>
                 </div>
               </div>
             </div>
           ) : (
             <div style={{ background: '#FFFFFF', padding: 36, borderRadius: 16, border: '1px solid #E2E8F0', textAlign: 'center', color: '#64748B' }}>
-              Select an alert from the left inbox to inspect the incident root cause.
+              Chọn một cảnh báo từ danh sách bên trái để kiểm tra chi tiết nguyên nhân sự cố.
             </div>
           )}
         </div>

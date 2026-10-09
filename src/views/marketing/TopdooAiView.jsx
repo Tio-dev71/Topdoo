@@ -65,8 +65,8 @@ export function TopdooAiView() {
 
   // 9Router Modal State
   const [is9RouterModalOpen, setIs9RouterModalOpen] = useState(false);
-  const [custom9RouterUrl, setCustom9RouterUrl] = useState(nineRouterConfig?.baseUrl || 'http://localhost:20128/v1');
-  const [custom9RouterKey, setCustom9RouterKey] = useState(nineRouterConfig?.apiKey || 'sk-tiodev-chatbot-secret');
+  const [custom9RouterUrl, setCustom9RouterUrl] = useState(nineRouterConfig?.baseUrl || '/api/9router/v1');
+  const [custom9RouterKey, setCustom9RouterKey] = useState(nineRouterConfig?.apiKey || '');
   const [isPinging9Router, setIsPinging9Router] = useState(false);
 
   // Active feature tab in horizontal ribbon
@@ -1085,7 +1085,7 @@ export function TopdooAiView() {
                   type="text"
                   value={custom9RouterUrl}
                   onChange={(e) => setCustom9RouterUrl(e.target.value)}
-                  placeholder="http://localhost:20128/v1"
+                  placeholder="/api/9router/v1"
                   style={{
                     width: '100%',
                     padding: '9px 12px',
@@ -1107,7 +1107,7 @@ export function TopdooAiView() {
                   type="text"
                   value={custom9RouterKey}
                   onChange={(e) => setCustom9RouterKey(e.target.value)}
-                  placeholder="sk-tiodev-chatbot-secret"
+                  placeholder="Nhập API Key (tùy chọn hoặc để trống nếu dùng server proxy)"
                   style={{
                     width: '100%',
                     padding: '9px 12px',

@@ -23,7 +23,15 @@ import { useSecurity } from '../../context/SecurityContext';
 import { MarketingHeader } from '../../components/layout/MarketingHeader';
 
 export function TopdooDeveloperLoginView() {
-  const { navigateMarketing, setMode, setCurrentView, showToast } = useSecurity();
+  const { navigateMarketing, setMode, setCurrentView, showToast, user } = useSecurity();
+
+  // If user is already logged in, redirect directly to Developer Dashboard
+  React.useEffect(() => {
+    if (user) {
+      showToast('Đã đăng nhập', `Xin chào ${user.fullName || user.email}! Đang chuyển đến Developer Dashboard...`, 'info');
+      navigateMarketing('topdoo-developer-dashboard');
+    }
+  }, [user, navigateMarketing, showToast]);
 
   // Mode: 'login' | 'register'
   const [authMode, setAuthMode] = useState('login');

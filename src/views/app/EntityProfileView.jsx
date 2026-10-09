@@ -112,8 +112,28 @@ export function EntityProfileView() {
     activeEntity.riskScore >= 41 ? '#D97706' :
     activeEntity.riskScore >= 21 ? '#2563EB' : '#059669';
 
+  const mobileStyles = `
+    @media (max-width: 768px) {
+      .profile-header-top { flex-direction: column !important; align-items: flex-start !important; }
+      .profile-header-actions { flex-wrap: nowrap !important; width: 100% !important; justify-content: flex-start !important; overflow-x: auto !important; padding-bottom: 8px !important; -webkit-overflow-scrolling: touch; }
+      .profile-header-actions button { flex-shrink: 0 !important; }
+      .tab-nav { flex-wrap: nowrap !important; overflow-x: auto !important; padding-bottom: 8px !important; -webkit-overflow-scrolling: touch; }
+      .tab-nav button { flex-shrink: 0 !important; }
+      .sec-card-header { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+      .factor-card-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+      .evidence-meta { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+      .related-entity-item { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+      .report-meta { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+      .report-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+      .evidence-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+      .profile-title-row { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+      .profile-title-text { font-size: 20px !important; word-break: break-all; }
+    }
+  `;
+
   return (
     <PageTransition>
+      <style>{mobileStyles}</style>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 1100, margin: '0 auto' }}>
         {/* Entity Profile Header Card */}
         <div
@@ -127,7 +147,7 @@ export function EntityProfileView() {
             borderTop: `4px solid ${riskColor}`
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
+          <div className="profile-header-top" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <span
@@ -150,8 +170,8 @@ export function EntityProfileView() {
                 </span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', color: '#0F172A', margin: 0 }}>
+              <div className="profile-title-row" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <h1 className="profile-title-text" style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', color: '#0F172A', margin: 0 }}>
                   {activeEntity.identifier}
                 </h1>
                 <button
@@ -183,7 +203,7 @@ export function EntityProfileView() {
             </div>
 
             {/* Action Toolbar */}
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className="profile-header-actions" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <button
                 className="btn btn-secondary btn-sm"
                 onClick={() => toggleWatchlist(activeEntity.id)}
@@ -265,6 +285,7 @@ export function EntityProfileView() {
 
         {/* Tab Navigation matching Modern Pill Style */}
         <div
+          className="tab-nav"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -350,7 +371,7 @@ export function EntityProfileView() {
                       gap: 8
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="factor-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span style={{ fontWeight: 700, fontSize: 14, color: '#0F172A' }}>
                           {factor.name}
@@ -432,6 +453,7 @@ export function EntityProfileView() {
                         cursor: 'pointer',
                         transition: 'all 120ms ease'
                       }}
+                      className="related-entity-item"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = '#2563EB';
                         e.currentTarget.style.background = '#F8FAFC';
@@ -509,7 +531,7 @@ export function EntityProfileView() {
                       gap: 8
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="report-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span className="mono" style={{ fontWeight: 800, fontSize: 13, color: '#0F172A' }}>
                           {rep.id}
@@ -536,7 +558,7 @@ export function EntityProfileView() {
                     <div style={{ fontSize: 13, color: '#475569', lineHeight: 1.5 }}>
                       {rep.description}
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#64748B', paddingTop: 8, borderTop: '1px solid #E2E8F0', flexWrap: 'wrap', gap: 8 }}>
+                    <div className="report-meta" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#64748B', paddingTop: 8, borderTop: '1px solid #E2E8F0', flexWrap: 'wrap', gap: 8 }}>
                       <span>Loss Incurred: <strong style={{ color: '#DC2626' }}>{rep.lossReported}</strong></span>
                       <span>Filed: {rep.createdAt}</span>
                       <span>Reviewer: {rep.reviewer}</span>
@@ -585,7 +607,7 @@ export function EntityProfileView() {
                       gap: 8
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="evidence-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span className="mono" style={{ fontWeight: 800, fontSize: 13, color: '#0F172A' }}>{ev.id}</span>
                         <span
@@ -610,7 +632,7 @@ export function EntityProfileView() {
                     <div style={{ fontSize: 13, color: '#475569' }}>
                       {ev.description}
                     </div>
-                    <div style={{ fontSize: 11, color: '#64748B', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                    <div className="evidence-meta" style={{ fontSize: 11, color: '#64748B', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                       <span>Digest: <span className="mono" style={{ color: '#0F172A', fontWeight: 600 }}>{ev.hash.substring(0, 18)}...</span></span>
                       <span>Collector: {ev.source}</span>
                       <span>Recorded: {ev.timestamp}</span>
@@ -738,6 +760,7 @@ export function EntityProfileView() {
                       cursor: 'pointer',
                       transition: 'all 120ms ease'
                     }}
+                    className="related-entity-item"
                     onClick={() => navigateToEntity(rel.id)}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.borderColor = '#2563EB';

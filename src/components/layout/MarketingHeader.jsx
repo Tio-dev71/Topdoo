@@ -128,6 +128,17 @@ export function MarketingHeader() {
     };
   }, []);
 
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
+
   const launchSecurityConsole = (targetView = 'overview') => {
     setMode('app');
     setCurrentView(targetView);
@@ -304,7 +315,11 @@ export function MarketingHeader() {
           icon: ShieldCheck,
           iconBg: '#DCFCE7',
           iconColor: '#10B981',
-          action: () => showToast('Tiện ích trình duyệt Topdoo Shield: Tương thích Chrome, Edge, Brave & Cốc Cốc', 'info')
+          action: () => {
+            setActiveDropdown(null);
+            launchSecurityConsole('url-scanner');
+            showToast('Tiện ích trình duyệt Topdoo Shield', 'Chuyển đến công cụ bảo mật...', 'info');
+          }
         },
         {
           id: 'webhook',
@@ -426,7 +441,10 @@ export function MarketingHeader() {
           icon: Newspaper,
           iconBg: '#EBF5FF',
           iconColor: '#0084FF',
-          action: () => showToast('Đang cập nhật các bản tin an ninh mạng mới nhất', 'info')
+          action: () => {
+            setActiveDropdown(null);
+            navigateMarketing('topdoo-community');
+          }
         },
         {
           id: 'scam-trends-report',
@@ -444,7 +462,10 @@ export function MarketingHeader() {
           icon: Users,
           iconBg: '#EBF5FF',
           iconColor: '#0084FF',
-          action: () => showToast('Khám phá những câu chuyện phòng chống lừa đảo thực tế', 'info')
+          action: () => {
+            setActiveDropdown(null);
+            navigateMarketing('topdoo-community');
+          }
         },
         {
           id: 'webinar-events',
@@ -453,7 +474,10 @@ export function MarketingHeader() {
           icon: Calendar,
           iconBg: '#EBF5FF',
           iconColor: '#0084FF',
-          action: () => showToast('Lịch sự kiện & Webinar an ninh số sắp diễn ra', 'info')
+          action: () => {
+            setActiveDropdown(null);
+            navigateMarketing('topdoo-community');
+          }
         }
       ]
     },
@@ -496,7 +520,10 @@ export function MarketingHeader() {
           icon: Gift,
           iconBg: '#F3E8FF',
           iconColor: '#8B5CF6',
-          action: () => showToast('Chương trình Đại sứ An toàn số Topdoo đang mở đăng ký', 'info')
+          action: () => {
+            setActiveDropdown(null);
+            navigateMarketing('topdoo-community');
+          }
         }
       ]
     }
@@ -533,7 +560,10 @@ export function MarketingHeader() {
           icon: FileText,
           iconBg: '#DCFCE7',
           iconColor: '#10B981',
-          action: () => showToast('Cập nhật tin tức và hoạt động mới nhất của Topdoo', 'info')
+          action: () => {
+            setActiveDropdown(null);
+            navigateMarketing('topdoo-company');
+          }
         },
         {
           id: 'careers',
@@ -542,7 +572,10 @@ export function MarketingHeader() {
           icon: Briefcase,
           iconBg: '#FEF3C7',
           iconColor: '#D97706',
-          action: () => showToast('Topdoo đang tuyển dụng nhiều vị trí hấp dẫn!', 'info')
+          action: () => {
+            setActiveDropdown(null);
+            navigateMarketing('topdoo-company');
+          }
         },
         {
           id: 'contact',
@@ -585,7 +618,10 @@ export function MarketingHeader() {
           icon: Share2,
           iconBg: '#CCFBF1',
           iconColor: '#0D9488',
-          action: () => showToast('Chương trình đối tác đại lý phân phối Topdoo đang mở cổng đăng ký', 'info')
+          action: () => {
+            setActiveDropdown(null);
+            navigateMarketing('topdoo-business');
+          }
         },
         {
           id: 'api-integration',
@@ -603,16 +639,20 @@ export function MarketingHeader() {
           icon: Megaphone,
           iconBg: '#EBF5FF',
           iconColor: '#0084FF',
-          action: () => showToast('Tài liệu truyền thông & bộ nhận diện thương hiệu Topdoo sẵn sàng tải về', 'info')
+          action: () => {
+            setActiveDropdown(null);
+            navigateMarketing('topdoo-company');
+          }
         }
       ]
     }
   ];
 
   return (
-    <header className="landing-header">
-      <div className="landing-header-inner">
-        {/* Logo */}
+    <>
+      <header className="landing-header">
+        <div className="landing-header-inner">
+          {/* Logo */}
         <div
           className="landing-logo"
           onClick={() => navigateMarketing('home')}
@@ -780,7 +820,10 @@ export function MarketingHeader() {
                                   <div
                                     key={idx}
                                     className="mega-feature-row-ai"
-                                    onClick={goToTopdooAi}
+                                    onClick={() => {
+                                      showToast(item.title, `Đang mở tính năng ${item.title}...`, 'info');
+                                      goToTopdooAi();
+                                    }}
                                   >
                                     <div className="mega-feat-ai-badge">
                                       <IconComp size={15} color="#2563EB" />
@@ -827,7 +870,10 @@ export function MarketingHeader() {
                                   <div
                                     key={idx}
                                     className="mega-feature-row-studio"
-                                    onClick={() => showToast(item.title, `Đang mở tính năng ${item.title}...`, 'info')}
+                                    onClick={() => {
+                                      showToast(item.title, `Đang mở tính năng ${item.title}...`, 'info');
+                                      goToTopdooStudio();
+                                    }}
                                   >
                                     <div className="mega-feat-studio-badge">
                                       <IconComp size={15} color="#9333EA" />
@@ -875,12 +921,13 @@ export function MarketingHeader() {
                                     key={idx}
                                     className="mega-feature-row-tools"
                                     onClick={() => {
-                                   if (item.title === 'Khám phá công cụ') {
-                                     goToExploreTools();
-                                   } else {
-                                     showToast(item.title, `Đang mở tính năng ${item.title}...`, 'info');
-                                   }
-                                 }}
+                                      if (item.title === 'Khám phá công cụ') {
+                                        goToExploreTools();
+                                      } else {
+                                        showToast(item.title, `Đang mở tính năng ${item.title}...`, 'info');
+                                        goToTopdooTools();
+                                      }
+                                    }}
                                   >
                                     <div className="mega-feat-tools-badge">
                                       <IconComp size={15} color="#EA580C" />
@@ -1368,7 +1415,10 @@ export function MarketingHeader() {
                         ) : hoveredProduct === 'studio' ? (
                           <button
                             className="btn-bottom-studio-action"
-                            onClick={() => showToast('Tư vấn ngay', 'Gửi yêu cầu tư vấn thành công! Chuyên viên sẽ liên hệ với bạn.', 'success')}
+                            onClick={() => {
+                              setActiveDropdown(null);
+                              navigateMarketing('topdoo-contact');
+                            }}
                           >
                             <span>Tư vấn ngay</span>
                             <ArrowRight size={14} />
@@ -1376,7 +1426,10 @@ export function MarketingHeader() {
                         ) : hoveredProduct === 'tools' ? (
                           <button
                             className="btn-bottom-tools-action"
-                            onClick={() => showToast('Gợi ý công cụ', 'Hệ thống đang chuẩn bị bộ câu hỏi khảo sát để gợi ý công cụ AI tốt nhất cho bạn!', 'info')}
+                            onClick={() => {
+                              setActiveDropdown(null);
+                              navigateMarketing('topdoo-tools');
+                            }}
                           >
                             <span>Nhận gợi ý ngay</span>
                             <ArrowRight size={14} />
@@ -1396,14 +1449,20 @@ export function MarketingHeader() {
                           <>
                             <button
                               className="btn-bottom-action"
-                              onClick={() => showToast('Tài liệu hướng dẫn', 'Đang chuyển đến cổng tài liệu Topdoo...', 'info')}
+                              onClick={() => {
+                                setActiveDropdown(null);
+                                navigateMarketing('topdoo-developer-api-sdk');
+                              }}
                             >
                               <BookOpen size={14} />
                               <span>Xem tài liệu</span>
                             </button>
                             <button
                               className="btn-bottom-action"
-                              onClick={() => showToast('Video giới thiệu', 'Đang tải video giới thiệu hệ sinh thái...', 'info')}
+                              onClick={() => {
+                                setActiveDropdown(null);
+                                navigateMarketing('topdoo-company');
+                              }}
                             >
                               <Video size={14} />
                               <span>Xem video</span>
@@ -2041,6 +2100,17 @@ export function MarketingHeader() {
                   </span>
                 </div>
               </div>
+
+              {/* Mobile Hamburger Menu Toggle Button */}
+              <button
+                type="button"
+                className="btn-mobile-menu-toggle"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
+                title="Menu điều hướng di động"
+              >
+                {isMobileMenuOpen ? <X size={20} color="#0F172A" /> : <Menu size={20} color="#0F172A" />}
+              </button>
             </>
           ) : (
             <>
@@ -2299,6 +2369,7 @@ export function MarketingHeader() {
           )}
         </div>
       </div>
+    </header>
 
       {/* =========================================================================
           MOBILE NAVIGATION DRAWER OVERLAY
@@ -2661,6 +2732,6 @@ export function MarketingHeader() {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }

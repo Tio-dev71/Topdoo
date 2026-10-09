@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   ArrowRight,
   ChevronRight,
@@ -98,8 +98,25 @@ export function TopdooStudioView() {
   const [cloneGender, setCloneGender] = useState('Nữ');
   const [cloneDesc, setCloneDesc] = useState('');
   const [cloneFileName, setCloneFileName] = useState('');
+  const [cloneAudioFile, setCloneAudioFile] = useState(null);
+  const cloneFileInputRef = useRef(null);
   const [isCloningVoice, setIsCloningVoice] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+
+  const handleAudioFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      showToast('Lỗi dung lượng', 'File âm thanh mẫu không được vượt quá 15MB. Vui lòng chọn file ngắn hơn.', 'danger');
+      if (cloneFileInputRef.current) cloneFileInputRef.current.value = '';
+      return;
+    }
+
+    setCloneFileName(file.name);
+    setCloneAudioFile(file);
+    showToast('Đã chọn mẫu', `Đã chọn file: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`, 'info');
+  };
 
   const handleSynthesizeVoice = async () => {
     if (!ttsScript.trim()) {
@@ -152,7 +169,7 @@ export function TopdooStudioView() {
     setIsCloningVoice(true);
     const res = await cloneVoice({
       voiceName: cloneName,
-      sampleAudioBlob: null,
+      sampleAudioBlob: cloneAudioFile,
       description: cloneDesc || 'Giọng nhân bản tùy chỉnh tạo từ Topdoo Studio',
       gender: cloneGender
     });
@@ -161,7 +178,10 @@ export function TopdooStudioView() {
       setCloneName('');
       setCloneDesc('');
       setCloneFileName('');
+      setCloneAudioFile(null);
+      if (cloneFileInputRef.current) cloneFileInputRef.current.value = '';
       setVoiceStudioTab('tts');
+      showToast('Thành công', `Đã tạo giọng nhân bản "${cloneName}" thành công!`, 'success');
     }
   };
 
@@ -765,7 +785,7 @@ export function TopdooStudioView() {
       <section className="studio-voicebox-section" id="voicebox-studio" style={{ padding: '80px 0', backgroundColor: '#F8FAFC', borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0' }}>
         <div className="landing-container">
           {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 20, marginBottom: 32 }}>
+          <div className="studio-voicebox-header">
             <div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 12px', borderRadius: 20, backgroundColor: 'rgba(124, 58, 237, 0.1)', color: '#7C3AED', fontSize: 12, fontWeight: 700, marginBottom: 12 }}>
                 <Radio size={14} className="animate-pulse" />
@@ -778,7 +798,7 @@ export function TopdooStudioView() {
             </div>
 
             {/* Gateway Status Badge */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -796,7 +816,7 @@ export function TopdooStudioView() {
                   display: 'inline-block'
                 }} />
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#065F46' }}>
-                  Topdoo Voice Engine: Đang hoạt động (Độ trễ &lt; 300ms)
+                  Topdoo Voice Engine: Đang hoạt động (&lt; 300ms)
                 </span>
                 <button
                   type="button"
@@ -811,24 +831,11 @@ export function TopdooStudioView() {
           </div>
 
           {/* Navigation Tabs */}
-          <div style={{ display: 'flex', gap: 10, marginBottom: 24, borderBottom: '1px solid #E2E8F0', paddingBottom: 12 }}>
+          <div className="studio-voice-tabs">
             <button
               type="button"
               onClick={() => setVoiceStudioTab('tts')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '10px 18px',
-                borderRadius: 10,
-                border: 'none',
-                backgroundColor: voiceStudioTab === 'tts' ? '#7C3AED' : '#FFFFFF',
-                color: voiceStudioTab === 'tts' ? '#FFFFFF' : '#475569',
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: 'pointer',
-                boxShadow: voiceStudioTab === 'tts' ? '0 4px 12px rgba(124, 58, 237, 0.25)' : 'none'
-              }}
+              className={`studio-voice-tab-btn ${voiceStudioTab === 'tts' ? 'active' : ''}`}
             >
               <Volume2 size={16} />
               <span>1. Lồng Tiếng & Đọc Văn Bản (TTS)</span>
@@ -837,20 +844,7 @@ export function TopdooStudioView() {
             <button
               type="button"
               onClick={() => setVoiceStudioTab('clone')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '10px 18px',
-                borderRadius: 10,
-                border: 'none',
-                backgroundColor: voiceStudioTab === 'clone' ? '#7C3AED' : '#FFFFFF',
-                color: voiceStudioTab === 'clone' ? '#FFFFFF' : '#475569',
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: 'pointer',
-                boxShadow: voiceStudioTab === 'clone' ? '0 4px 12px rgba(124, 58, 237, 0.25)' : 'none'
-              }}
+              className={`studio-voice-tab-btn ${voiceStudioTab === 'clone' ? 'active' : ''}`}
             >
               <Mic size={16} />
               <span>2. Nhân Bản Giọng Nói (Zero-shot Clone)</span>
@@ -859,9 +853,9 @@ export function TopdooStudioView() {
 
           {/* TAB 1: TEXT-TO-SPEECH STUDIO */}
           {voiceStudioTab === 'tts' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1fr) minmax(360px, 1.4fr)', gap: 24, alignItems: 'start' }}>
+            <div className="studio-voice-tts-grid">
               {/* Left Column: Voice Profiles Selection */}
-              <div style={{ backgroundColor: '#FFFFFF', padding: 20, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <div className="studio-voice-profiles-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#0F172A' }}>
                     Chọn Giọng Đọc ({voiceProfiles?.length || 0})
@@ -960,7 +954,7 @@ export function TopdooStudioView() {
               </div>
 
               {/* Right Column: Text Input & Synthesizer Player */}
-              <div style={{ backgroundColor: '#FFFFFF', padding: 24, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="studio-voice-editor-card">
                 {/* Active Selected Voice Indicator Card */}
                 <div style={{
                   display: 'flex',
@@ -1035,7 +1029,7 @@ export function TopdooStudioView() {
                 </div>
 
                 {/* Speed & Pitch Controls */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div className="studio-voice-controls-grid">
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
                       <span>Tốc độ đọc (Speed)</span>
@@ -1070,7 +1064,7 @@ export function TopdooStudioView() {
                 </div>
 
                 {/* Action Buttons */}
-                <div style={{ display: 'flex', gap: 12 }}>
+                <div className="studio-voice-actions-group">
                   <button
                     type="button"
                     disabled={isSynthesizing}
@@ -1212,7 +1206,7 @@ export function TopdooStudioView() {
 
           {/* TAB 2: ZERO-SHOT VOICE CLONING */}
           {voiceStudioTab === 'clone' && (
-            <div style={{ backgroundColor: '#FFFFFF', padding: 32, borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', maxWidth: 760, margin: '0 auto' }}>
+            <div className="studio-voice-clone-container">
               <div style={{ marginBottom: 24, textAlign: 'center' }}>
                 <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: 'rgba(124, 58, 237, 0.1)', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                   <Mic size={26} />
@@ -1226,7 +1220,7 @@ export function TopdooStudioView() {
               </div>
 
               <form onSubmit={handleCloneVoiceSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: 16 }}>
+                <div className="studio-voice-clone-grid">
                   <div>
                     <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
                       Tên Giọng Nói Mới *
@@ -1274,25 +1268,31 @@ export function TopdooStudioView() {
                   <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
                     Mẫu Âm Thanh (Audio Sample 3 - 10s)
                   </label>
-                  <div style={{
-                    border: '2px dashed #CBD5E1',
-                    borderRadius: 12,
-                    padding: '24px 16px',
-                    textAlign: 'center',
-                    backgroundColor: '#F8FAFC',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => {
-                    setCloneFileName('audio_sample_recording.wav');
-                    showToast('Đã chọn mẫu', 'Đã tải lên audio_sample_recording.wav (5.4 giây)', 'info');
-                  }}
+                  <input
+                    type="file"
+                    ref={cloneFileInputRef}
+                    accept="audio/*"
+                    style={{ display: 'none' }}
+                    onChange={handleAudioFileSelect}
+                  />
+                  <div
+                    style={{
+                      border: '2px dashed #CBD5E1',
+                      borderRadius: 12,
+                      padding: '24px 16px',
+                      textAlign: 'center',
+                      backgroundColor: '#F8FAFC',
+                      cursor: 'pointer',
+                      transition: 'border-color 0.2s ease'
+                    }}
+                    onClick={() => cloneFileInputRef.current?.click()}
                   >
                     <UploadCloud size={32} color="#7C3AED" style={{ margin: '0 auto 8px' }} />
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B' }}>
                       {cloneFileName ? `Đã chọn: ${cloneFileName}` : 'Kéo thả file âm thanh (MP3/WAV) vào đây hoặc bấm để chọn'}
                     </div>
                     <div style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>
-                      Khuyến nghị đoạn nói rõ ràng, không lẫn tạp âm, thời lượng từ 3 đến 10 giây.
+                      Khuyến nghị đoạn nói rõ ràng, tối đa 15MB, thời lượng từ 3 đến 10 giây.
                     </div>
                   </div>
                 </div>
@@ -1485,9 +1485,11 @@ export function TopdooStudioView() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '16px 24px',
+              padding: '16px 20px',
               borderBottom: '1px solid #E2E8F0',
-              backgroundColor: '#F8FAFC'
+              backgroundColor: '#F8FAFC',
+              flexWrap: 'wrap',
+              gap: 12
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{
@@ -1551,18 +1553,9 @@ export function TopdooStudioView() {
             </div>
 
             {/* Modal Body: 2 Columns */}
-            <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+            <div className="studio-canvas-layout">
               {/* Left Control Panel */}
-              <div style={{
-                width: 380,
-                borderRight: '1px solid #E2E8F0',
-                padding: 20,
-                overflowY: 'auto',
-                backgroundColor: '#FAFAFA',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 16
-              }}>
+              <div className="studio-canvas-sidebar">
                 <div>
                   <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 8 }}>
                     1. Định dạng tài sản (Format)
@@ -1710,15 +1703,7 @@ export function TopdooStudioView() {
               </div>
 
               {/* Right Canvas Interactive Preview */}
-              <div style={{
-                flex: 1,
-                padding: 24,
-                backgroundColor: '#F1F5F9',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 16,
-                overflowY: 'auto'
-              }}>
+              <div className="studio-canvas-preview">
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',

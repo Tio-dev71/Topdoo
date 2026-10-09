@@ -204,6 +204,10 @@ function AppContent() {
       {/* Global Search Modal (⌘K) */}
       <GlobalSearchModal />
 
+      {/* Global Auth & Credits Modals */}
+      <MarketingAuthModal />
+      <CreditModal />
+
       {/* Global Toast Feedback */}
       {toast && (
         <div className="toast-container">

@@ -29,6 +29,34 @@ import { RiskBadge } from '../../components/common/RiskBadge';
 import { TechnicalMono } from '../../components/common/TechnicalMono';
 import { PageTransition } from '../../components/common/PageTransition';
 
+const mobileStyles = `
+  @media (max-width: 768px) {
+    .phishing-form {
+      flex-direction: column !important;
+      gap: 12px !important;
+    }
+    .phishing-form input {
+      width: 100% !important;
+    }
+    .phishing-form button {
+      width: 100% !important;
+      justify-content: center;
+    }
+    .phishing-verdict-card {
+      padding: 16px !important;
+    }
+    .phishing-tabs {
+      flex-wrap: wrap;
+    }
+    .phishing-tabs button {
+      flex: 1;
+      justify-content: center;
+      padding: 10px 8px !important;
+      font-size: 12.5px !important;
+    }
+  }
+`;
+
 export function PhishingCheckView() {
   const { entities, navigateToEntity, toggleWatchlist, showToast } = useSecurity();
 
@@ -160,6 +188,7 @@ export function PhishingCheckView() {
 
   return (
     <PageTransition>
+      <style>{mobileStyles}</style>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 1080, margin: '0 auto', paddingBottom: 40 }}>
         {/* Header */}
         <div>
@@ -174,6 +203,7 @@ export function PhishingCheckView() {
 
           {/* Search Box */}
           <form
+            className="phishing-form"
             onSubmit={(e) => {
               e.preventDefault();
               handleInspect();
@@ -269,7 +299,7 @@ export function PhishingCheckView() {
         </div>
 
         {/* Primary Verdict Card */}
-        <div style={{
+        <div className="phishing-verdict-card" style={{
           background: '#FFFFFF',
           borderRadius: 16,
           border: '1px solid #E2E8F0',
@@ -390,7 +420,7 @@ export function PhishingCheckView() {
         </div>
 
         {/* Tab Navigation for Inspection Details */}
-        <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid #E2E8F0', paddingBottom: 1 }}>
+        <div className="phishing-tabs" style={{ display: 'flex', gap: 8, borderBottom: '1px solid #E2E8F0', paddingBottom: 1 }}>
           <button
             onClick={() => setActiveTab('signals')}
             style={{

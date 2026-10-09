@@ -61,7 +61,7 @@ import { MarketingHeader } from '../../components/layout/MarketingHeader';
 import { MarketingFooter } from '../../components/layout/MarketingFooter';
 
 export function PublicWebsite() {
-  const { setMode, setCurrentView, runQuickCheck, showToast, navigateMarketing, openAuthModal } = useSecurity();
+  const { setMode, setCurrentView, runQuickCheck, showToast, navigateMarketing, openAuthModal, user } = useSecurity();
 
   const [codeTab, setCodeTab] = useState('python');
   const [copiedCode, setCopiedCode] = useState(false);
@@ -130,9 +130,15 @@ console.log(response.choices[0].message.content);`,
             <div className="hero-cta-group">
               <button
                 className="btn-hero-primary"
-                onClick={() => openAuthModal('trial')}
+                onClick={() => {
+                  if (user) {
+                    navigateMarketing('topdoo-developer-dashboard');
+                  } else {
+                    openAuthModal('trial');
+                  }
+                }}
               >
-                <span>Dùng thử miễn phí</span>
+                <span>{user ? 'Vào Dashboard làm việc' : 'Dùng thử miễn phí'}</span>
                 <ArrowRight size={16} />
               </button>
 
@@ -780,9 +786,15 @@ console.log(response.choices[0].message.content);`,
             <div className="cta-banner-buttons">
               <button
                 className="btn-banner-primary"
-                onClick={() => openAuthModal('trial')}
+                onClick={() => {
+                  if (user) {
+                    navigateMarketing('topdoo-developer-dashboard');
+                  } else {
+                    openAuthModal('trial');
+                  }
+                }}
               >
-                <span>Dùng thử miễn phí</span>
+                <span>{user ? 'Vào Dashboard làm việc' : 'Dùng thử miễn phí'}</span>
                 <ArrowRight size={16} />
               </button>
               <button

@@ -49,6 +49,12 @@ import {
   cloneVoiceProfile,
   stopAllSpeech
 } from '../services/voiceService';
+import {
+  scanLiveWebsite,
+  scanLiveCheckScam,
+  scanLiveIpServer,
+  scanLiveBreachEmail
+} from '../services/realSecurityScanner';
 
 const SecurityContext = createContext(null);
 
@@ -1023,9 +1029,13 @@ export function SecurityProvider({ children }) {
   const [authModalMode, setAuthModalMode] = useState('login'); // 'login' | 'register'
 
   const openAuthModal = useCallback((modalMode = 'login') => {
+    if (user) {
+      showToast('Đã đăng nhập', `Bạn đang đăng nhập với tài khoản ${user.fullName || user.email}!`, 'info');
+      return;
+    }
     setAuthModalMode(modalMode);
     setIsAuthModalOpen(true);
-  }, []);
+  }, [user, showToast]);
 
   const closeAuthModal = useCallback(() => {
     setIsAuthModalOpen(false);
@@ -1361,8 +1371,96 @@ export function SecurityProvider({ children }) {
     { title: 'Generating security intelligence report', desc: 'Finalizing actionable remediation guidelines...' }
   ];
 
-  // Quick Check runner
-  const runQuickCheck = (query) => {
+  // Record Live Scan Result into Console Entities, Monitoring & Alerts
+  const recordScanToConsole = useCallback((scanResult) => {
+    if (!scanResult || !scanResult.target) return;
+    const cleanTarget = scanResult.target.trim();
+
+    setEntities(prev => {
+      const exists = prev.find(e => e.identifier.toLowerCase() === cleanTarget.toLowerCase());
+      if (exists) {
+        return prev.map(e => e.id === exists.id ? { ...e, lastSeen: 'Vừa xong' } : e);
+      }
+
+      const riskScore = scanResult.score !== undefined ? (100 - scanResult.score) : 80;
+      const isDangerous = scanResult.status === 'danger';
+      const isBank = cleanTarget.replace(/[^0-9]/g, '').length >= 8;
+      const isPhone = /^0[0-9]{9}$/.test(cleanTarget.replace(/[^0-9]/g, ''));
+
+      let entityType = 'domain';
+      if (scanResult.type === 'checkscam') {
+        entityType = isPhone ? 'phone' : 'bank';
+      } else if (scanResult.type === 'ip') {
+        entityType = 'server';
+      } else if (scanResult.type === 'breach') {
+        entityType = 'email';
+      }
+
+      const newEntity = {
+        id: `ent-scan-${Date.now()}`,
+        identifier: cleanTarget,
+        type: entityType,
+        name: scanResult.statusLabel || `${cleanTarget} (Mục tiêu quét)`,
+        riskScore: riskScore,
+        status: isDangerous ? 'Đã xác nhận Nguy hiểm / Cảnh báo' : (scanResult.status === 'warning' ? 'Cần cảnh giác / Rủi ro vừa' : 'An toàn / Đã kiểm tra'),
+        targetBrand: scanResult.scamData?.bankName || scanResult.scamData?.carrier || scanResult.detectedEntity || 'Hạ tầng kiểm tra',
+        category: scanResult.scamData?.scamType || (scanResult.type === 'checkscam' ? 'Tra cứu CheckScam' : 'Kiểm tra an ninh trực tiếp'),
+        createdAt: new Date().toISOString().split('T')[0],
+        lastSeen: 'Vừa xong',
+        reportsCount: scanResult.scamData?.reportCount || (isDangerous ? 6 : 0),
+        evidenceCount: isDangerous ? 2 : 1,
+        watchlist: isDangerous,
+        country: 'VN',
+        summary: scanResult.summary || 'Đối tượng được phân tích qua bộ công cụ quét thời gian thực Topdoo Security.',
+        riskFactors: [
+          { name: 'Đánh giá AI Engine', score: Math.round(riskScore * 0.4), max: 40, status: isDangerous ? 'Critical' : 'Clean', desc: scanResult.summary || 'Đã phân tích kỹ thuật' },
+          { name: 'Cơ sở dữ liệu Đen', score: Math.round(riskScore * 0.3), max: 30, status: isDangerous ? 'High' : 'Clean', desc: scanResult.statusLabel || 'Chỉ số tín nhiệm' }
+        ],
+        relatedEntityIds: []
+      };
+
+      return [newEntity, ...prev];
+    });
+
+    // Add Live Monitoring Event
+    setMonitoringEvents(prev => [
+      {
+        id: `MON-${Date.now()}`,
+        timestamp: 'Vừa xong',
+        entityId: `ent-scan-${Date.now()}`,
+        entityIdentifier: cleanTarget,
+        entityType: scanResult.type,
+        event: 'Phiên quét an ninh thời gian thực',
+        change: `Điểm an toàn: ${scanResult.score}/100 (${scanResult.statusLabel})`,
+        severity: scanResult.status === 'danger' ? 'Critical' : (scanResult.status === 'warning' ? 'High' : 'Safe'),
+        rule: 'Giám sát trực tiếp người dùng'
+      },
+      ...prev
+    ]);
+
+    // If danger, add Alert
+    if (scanResult.status === 'danger') {
+      setAlerts(prev => [
+        {
+          id: `ALT-${Date.now().toString().slice(-4)}`,
+          severity: 'Critical',
+          title: `Cảnh báo đối tượng độc hại: ${cleanTarget}`,
+          entityId: `ent-scan-${Date.now()}`,
+          entityIdentifier: cleanTarget,
+          entityType: scanResult.type,
+          reason: scanResult.summary || 'Phát hiện dấu hiệu lừa đảo qua công cụ quét an ninh Topdoo.',
+          timestamp: 'Vừa xong',
+          status: 'Unresolved',
+          category: 'Phát hiện Trực tiếp',
+          details: scanResult.recommendation || 'Đã ghi nhận vào danh sách cảnh báo cần xử lý khẩn cấp.'
+        },
+        ...prev
+      ]);
+    }
+  }, []);
+
+  // Quick Check runner with Real Security Engine
+  const runQuickCheck = async (query) => {
     const cleanQuery = (query || '').trim();
     if (!cleanQuery) return;
 
@@ -1375,71 +1473,76 @@ export function SecurityProvider({ children }) {
     setMode('app');
     setCurrentView('quick-check');
 
-    // Simulate multi-stage progressive scanner
-    const intervalTime = 420;
+    // Progressive scanner animation
+    const intervalTime = 300;
     let currentStep = 0;
 
     const timer = setInterval(() => {
       currentStep++;
-      if (currentStep < scanStages.length) {
+      if (currentStep < scanStages.length - 1) {
         setScanStepIndex(currentStep);
-      } else {
-        clearInterval(timer);
-        setIsScanning(false);
-
-        // Find or create result
-        const existing = entities.find(
-          e => e.identifier.toLowerCase().includes(cleanQuery.toLowerCase()) ||
-               cleanQuery.toLowerCase().includes(e.identifier.toLowerCase())
-        );
-
-        if (existing) {
-          setQuickCheckResult(existing);
-          setActiveEntityId(existing.id);
-        } else {
-          // Synthetic dynamic entity calculation
-          const isSafeDemo = cleanQuery.includes('google') || cleanQuery.includes('apple') || cleanQuery.includes('github') || cleanQuery.includes('topdoo');
-          const syntheticScore = isSafeDemo ? 2 : Math.floor(Math.random() * 35) + 65;
-          const syntheticType = cleanQuery.startsWith('0x') ? 'wallet' : (cleanQuery.includes('@') ? 'email' : (cleanQuery.includes('/') || cleanQuery.includes('.') ? 'domain' : 'entity'));
-
-          const syntheticEntity = {
-            id: `ent-synth-${Date.now()}`,
-            identifier: cleanQuery,
-            type: syntheticType,
-            name: `${cleanQuery} (Analyzed Identifier)`,
-            riskScore: syntheticScore,
-            status: syntheticScore > 75 ? 'Critical / Scam Suspect' : (syntheticScore > 40 ? 'Suspicious / Elevated Risk' : 'Clean / Low Risk'),
-            targetBrand: syntheticScore > 60 ? 'Unknown Financial or Web3 Brand' : 'N/A',
-            category: syntheticScore > 60 ? 'Suspicious Phishing Target' : 'Benign Asset',
-            createdAt: '2026-09-30',
-            lastSeen: 'Just now',
-            reportsCount: syntheticScore > 60 ? 7 : 0,
-            evidenceCount: syntheticScore > 60 ? 3 : 1,
-            watchlist: false,
-            country: 'US',
-            ip: '104.28.19.42',
-            asn: 'AS13335 (Cloudflare Inc.)',
-            registrar: 'NameCheap Privacy Guard',
-            ssl: 'Cloudflare TLS 1.3 (Valid)',
-            domainAge: '14 days',
-            summary: syntheticScore > 60
-              ? `High-risk indicators observed for ${cleanQuery}. Newly registered infrastructure with spoofed brand telemetry.`
-              : `Identifier ${cleanQuery} demonstrates standard benign behavior with no known scam reports.`,
-            riskFactors: [
-              { name: 'Report History', score: Math.round(syntheticScore * 0.35), max: 35, status: syntheticScore > 60 ? 'High' : 'Clean', desc: `${syntheticScore > 60 ? '7 community threat reports' : 'Zero reports filed'}.` },
-              { name: 'Phishing Indicators', score: Math.round(syntheticScore * 0.30), max: 30, status: syntheticScore > 60 ? 'Elevated' : 'Clean', desc: `${syntheticScore > 60 ? 'Potential brand typosquatting' : 'No spoofing detected'}.` },
-              { name: 'Network Connections', score: Math.round(syntheticScore * 0.20), max: 20, status: syntheticScore > 60 ? 'Moderate' : 'Clean', desc: 'Correlated with 2 secondary nodes.' },
-              { name: 'Domain Reputation', score: Math.round(syntheticScore * 0.15), max: 15, status: syntheticScore > 60 ? 'Warning' : 'Clean', desc: 'Short registration duration.' }
-            ],
-            relatedEntityIds: ['ent-1']
-          };
-
-          setEntities(prev => [syntheticEntity, ...prev]);
-          setQuickCheckResult(syntheticEntity);
-          setActiveEntityId(syntheticEntity.id);
-        }
       }
     }, intervalTime);
+
+    try {
+      // Determine target type and call real scanner
+      const cleanDigits = cleanQuery.replace(/[^0-9]/g, '');
+      const isBankOrPhone = (cleanDigits.length >= 8 && cleanDigits.length <= 16 && !cleanQuery.includes('.')) || (/^0[0-9]{9}$/.test(cleanDigits));
+      const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(cleanQuery);
+      const isEmail = cleanQuery.includes('@');
+
+      let scanRes = null;
+      if (isBankOrPhone) {
+        scanRes = await scanLiveCheckScam(cleanQuery);
+      } else if (isIp) {
+        scanRes = await scanLiveIpServer(cleanQuery);
+      } else if (isEmail) {
+        scanRes = await scanLiveBreachEmail(cleanQuery);
+      } else {
+        scanRes = await scanLiveWebsite(cleanQuery);
+      }
+
+      clearInterval(timer);
+      setIsScanning(false);
+      setScanStepIndex(scanStages.length - 1);
+
+      // Record result into console
+      recordScanToConsole(scanRes);
+
+      // Map scanRes to active entity for display in QuickCheckView
+      const riskScore = scanRes.score !== undefined ? (100 - scanRes.score) : 80;
+      const isDangerous = scanRes.status === 'danger';
+      const entityResult = {
+        id: `ent-synth-${Date.now()}`,
+        identifier: cleanQuery,
+        type: isBankOrPhone ? 'bank' : (isIp ? 'server' : (isEmail ? 'email' : 'domain')),
+        name: scanRes.statusLabel || cleanQuery,
+        riskScore: riskScore,
+        status: isDangerous ? 'Đã xác nhận Nguy hiểm / Cảnh báo' : (scanRes.status === 'warning' ? 'Cần cảnh giác / Rủi ro vừa' : 'An toàn / Đã kiểm tra'),
+        targetBrand: scanRes.scamData?.bankName || scanRes.scamData?.carrier || scanRes.detectedEntity || 'Hạ tầng kiểm tra',
+        category: scanRes.scamData?.scamType || (isBankOrPhone ? 'Tra cứu CheckScam' : 'Kiểm tra an ninh trực tiếp'),
+        createdAt: new Date().toISOString().split('T')[0],
+        lastSeen: 'Vừa xong',
+        reportsCount: scanRes.scamData?.reportCount || (isDangerous ? 6 : 0),
+        evidenceCount: isDangerous ? 2 : 1,
+        watchlist: isDangerous,
+        country: 'VN',
+        summary: scanRes.summary || 'Đối tượng được phân tích qua bộ công cụ quét thời gian thực Topdoo Security.',
+        riskFactors: [
+          { name: 'Đánh giá AI Engine', score: Math.round(riskScore * 0.4), max: 40, status: isDangerous ? 'Critical' : 'Clean', desc: scanRes.summary || 'Đã phân tích kỹ thuật' },
+          { name: 'Cơ sở dữ liệu Đen', score: Math.round(riskScore * 0.3), max: 30, status: isDangerous ? 'High' : 'Clean', desc: scanRes.statusLabel || 'Chỉ số tín nhiệm' }
+        ],
+        relatedEntityIds: ['ent-1'],
+        rawScanResult: scanRes
+      };
+
+      setQuickCheckResult(entityResult);
+      setActiveEntityId(entityResult.id);
+    } catch (err) {
+      clearInterval(timer);
+      setIsScanning(false);
+      showToast('Lỗi phân tích', err.message || 'Không thể quét đối tượng này', 'error');
+    }
   };
 
   // Entity navigation helper
@@ -1701,7 +1804,10 @@ export function SecurityProvider({ children }) {
     setAuthError(null);
     setAuthLoading(true);
 
-    // Thử qua Supabase trước nếu có cấu hình
+    // Lưu dự phòng cục bộ để người dùng luôn có thể đăng nhập ngay lập tức
+    const localResult = localSignUp(email, password, fullName);
+
+    // Thử qua Supabase nếu có cấu hình
     if (supabase) {
       try {
         const { data, error } = await supabase.auth.signUp({
@@ -1720,35 +1826,37 @@ export function SecurityProvider({ children }) {
           };
           setUser(sessionUser);
           storeSession(sessionUser);
-          showToast('Đăng ký thành công', 'Chào mừng bạn đến với Topdoo!', 'success');
+          if (!data.session) {
+            showToast('Đăng ký thành công', 'Chào mừng bạn! (Mẹo: Có thể tắt "Confirm email" trong Supabase Auth để đăng nhập ngay mà không cần chờ mail xác thực).', 'success');
+          } else {
+            showToast('Đăng ký thành công', 'Chào mừng bạn đến với Topdoo!', 'success');
+          }
           closeAuthModal();
           setAuthLoading(false);
           return { data };
         }
         if (error) {
-          console.warn('Supabase sign up failed, falling back to local auth engine:', error.message);
+          console.warn('Supabase sign up notice:', error.message);
         }
       } catch (err) {
-        console.warn('Supabase connection error, falling back to local auth engine:', err.message);
+        console.warn('Supabase connection error:', err.message);
       }
     }
 
-    // Local Auth Engine (Luôn hoạt động 100% tại local)
-    const result = localSignUp(email, password, fullName);
     setAuthLoading(false);
-    if (result.error) {
-      setAuthError(result.error.message);
-      showToast('Đăng ký không thành công', result.error.message, 'warning');
-      return result;
+    if (localResult.error) {
+      setAuthError(localResult.error.message);
+      showToast('Đăng ký không thành công', localResult.error.message, 'warning');
+      return localResult;
     }
 
-    setUser(result.data.user);
-    if (result.data.user.role && Object.values(ROLES).includes(result.data.user.role)) {
-      setUserRole(result.data.user.role);
+    setUser(localResult.data.user);
+    if (localResult.data.user.role && Object.values(ROLES).includes(localResult.data.user.role)) {
+      setUserRole(localResult.data.user.role);
     }
-    showToast('Đăng ký tài khoản thành công', `Chào mừng ${result.data.user.fullName} gia nhập Topdoo!`, 'success');
+    showToast('Đăng ký tài khoản thành công', `Chào mừng ${localResult.data.user.fullName} gia nhập Topdoo!`, 'success');
     closeAuthModal();
-    return result;
+    return localResult;
   }, [ROLES, closeAuthModal, showToast]);
 
   const signIn = useCallback(async (email, password) => {
@@ -1779,14 +1887,14 @@ export function SecurityProvider({ children }) {
           return { data };
         }
         if (error) {
-          console.warn('Supabase sign in failed, checking local database:', error.message);
+          console.warn('Supabase sign in notice:', error.message);
         }
       } catch (err) {
-        console.warn('Supabase connection error, checking local database:', err.message);
+        console.warn('Supabase connection error, checking local credentials:', err.message);
       }
     }
 
-    // Local Auth Engine
+    // Local Auth Engine fallback
     const result = localSignIn(email, password);
     setAuthLoading(false);
     if (result.error) {
@@ -1806,10 +1914,40 @@ export function SecurityProvider({ children }) {
 
   const socialSignIn = useCallback(async (provider) => {
     setAuthLoading(true);
+    setAuthError(null);
+    const provLower = (provider || 'google').toLowerCase();
+    const supabaseProvider = provLower === 'microsoft' ? 'azure' : provLower;
+
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: supabaseProvider,
+          options: {
+            redirectTo: window.location.origin
+          }
+        });
+        if (!error && data?.url) {
+          // Chuyển hướng trình duyệt tới cổng OAuth của Google / Microsoft
+          window.location.href = data.url;
+          return { data };
+        }
+        if (error) {
+          console.warn(`Supabase OAuth ${provider} notice:`, error.message);
+        }
+      } catch (err) {
+        console.warn(`Supabase OAuth error:`, err.message);
+      }
+    }
+
+    // Nếu Provider chưa kích hoạt trên Supabase Cloud thì dùng cơ chế thử nghiệm cục bộ
     const result = localSocialSignIn(provider);
     setAuthLoading(false);
     setUser(result.data.user);
-    showToast('Đăng nhập thành công', `Đã kết nối tài khoản qua ${provider.toUpperCase()}!`, 'success');
+    showToast(
+      'Đăng nhập thử nghiệm',
+      `Đã kết nối tài khoản demo ${provider.toUpperCase()} (Cần bật Provider trên Supabase Dashboard để liên kết tài khoản thực)!`,
+      'info'
+    );
     closeAuthModal();
     return result;
   }, [closeAuthModal, showToast]);
@@ -1926,6 +2064,7 @@ export function SecurityProvider({ children }) {
         scanStages,
         quickCheckResult,
         runQuickCheck,
+        recordScanToConsole,
 
         // Global Search
         searchQuery,

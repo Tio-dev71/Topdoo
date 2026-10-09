@@ -22,7 +22,9 @@ import {
   ChevronRight,
   ExternalLink,
   PlusCircle,
-  AlertCircle
+  AlertCircle,
+  ArrowLeft,
+  Home
 } from 'lucide-react';
 import { useSecurity } from '../../context/SecurityContext';
 
@@ -35,10 +37,18 @@ export function Sidebar() {
     mobileMenuOpen,
     setMobileMenuOpen,
     setMode,
+    setMarketingRoute,
     alerts,
     reports,
     entities
   } = useSecurity();
+
+  const handleReturnHome = () => {
+    setMode('marketing');
+    if (setMarketingRoute) setMarketingRoute('topdoo-security');
+    if (typeof window !== 'undefined') window.history.pushState({}, '', '/topdoo-security');
+    if (mobileMenuOpen) setMobileMenuOpen(false);
+  };
 
   const unreadAlertsCount = alerts.filter(a => a.status === 'Unresolved').length;
   const watchlistCount = entities.filter(e => e.watchlist).length;
@@ -76,10 +86,8 @@ export function Sidebar() {
       <div className="sidebar-header">
         <div
           className="brand-logo-wrap"
-          onClick={() => {
-            setMode('app');
-            setCurrentView('overview');
-          }}
+          onClick={handleReturnHome}
+          title="Bấm để về Trang chủ Topdoo"
           style={{ cursor: 'pointer' }}
         >
           <img
@@ -116,6 +124,35 @@ export function Sidebar() {
 
       {/* Navigation Body */}
       <div className="sidebar-nav">
+        {/* Nút thoát về màn hình chính */}
+        <div style={{ marginBottom: 12 }}>
+          <button
+            onClick={handleReturnHome}
+            className="btn"
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+              gap: 8,
+              padding: sidebarCollapsed ? '8px 0' : '8px 12px',
+              fontSize: 12.5,
+              fontWeight: 700,
+              color: '#1D4ED8',
+              background: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              borderRadius: 8,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              boxShadow: '0 1px 2px rgba(37, 99, 235, 0.08)'
+            }}
+            title="Quay lại Trang chủ Topdoo Security"
+          >
+            <ArrowLeft size={16} />
+            {!sidebarCollapsed && <span>Quay lại Trang chủ</span>}
+          </button>
+        </div>
+
         {/* OVERVIEW */}
         <div className="nav-group">
           {navItem('overview', 'Tổng quan', LayoutDashboard)}
@@ -162,7 +199,7 @@ export function Sidebar() {
       {/* Sidebar Footer with quick actions */}
       <div className="sidebar-footer">
         {!sidebarCollapsed ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <button
               className="btn btn-primary"
               style={{ width: '100%', fontSize: 12, padding: '8px' }}
@@ -174,6 +211,27 @@ export function Sidebar() {
               <PlusCircle size={14} />
               <span>Báo cáo đối tượng</span>
             </button>
+            <button
+              className="btn"
+              style={{
+                width: '100%',
+                fontSize: 11.5,
+                padding: '6px 8px',
+                color: '#475569',
+                background: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+              onClick={handleReturnHome}
+            >
+              <Home size={13} style={{ color: '#2563EB' }} />
+              <span>Về Trang chủ Topdoo</span>
+            </button>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-muted)' }}>
               <span>Trạng thái hệ thống</span>
               <span style={{ color: 'var(--risk-safe)', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -183,17 +241,27 @@ export function Sidebar() {
             </div>
           </div>
         ) : (
-          <button
-            className="btn-icon"
-            style={{ width: '100%' }}
-            onClick={() => {
-              setMode('app');
-              setCurrentView('report-scam');
-            }}
-            title="Báo cáo lừa đảo"
-          >
-            <PlusCircle size={16} />
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <button
+              className="btn-icon"
+              style={{ width: '100%' }}
+              onClick={handleReturnHome}
+              title="Về Trang chủ Topdoo"
+            >
+              <Home size={16} color="#2563EB" />
+            </button>
+            <button
+              className="btn-icon"
+              style={{ width: '100%' }}
+              onClick={() => {
+                setMode('app');
+                setCurrentView('report-scam');
+              }}
+              title="Báo cáo lừa đảo"
+            >
+              <PlusCircle size={16} />
+            </button>
+          </div>
         )}
       </div>
     </aside>

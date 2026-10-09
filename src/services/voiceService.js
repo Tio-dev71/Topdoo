@@ -92,7 +92,7 @@ export const DEFAULT_VOICE_PROFILES = [
 
 export function getVoiceboxConfig() {
   const fallback = {
-    baseUrl: 'http://localhost:17493',
+    baseUrl: '/api/voicebox',
     apiKey: '',
     enabled: true,
     timeoutMs: 30000
@@ -307,30 +307,33 @@ export async function synthesizeSpeech({ text, profileId = 'kokoro-vi-huyen', sp
     clearTimeout(timeoutId);
 
     if (response.ok) {
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('audio')) {
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
 
-      // Phát trực tiếp qua Web Audio element
-      if (typeof window !== 'undefined') {
-        const audio = new Audio(audioUrl);
-        window.__topdooCurrentAudio = audio;
+        // Phát trực tiếp qua Web Audio element
+        if (typeof window !== 'undefined') {
+          const audio = new Audio(audioUrl);
+          window.__topdooCurrentAudio = audio;
 
-        // Bắt đầu phát âm thanh
-        await audio.play().catch(() => {});
+          // Bắt đầu phát âm thanh
+          await audio.play().catch(() => {});
+        }
+
+        return {
+          success: true,
+          audioUrl,
+          durationSec: Math.max(2, Math.round(text.length / 14)),
+          engine: selectedProfile.engine,
+          routedVia: 'Topdoo Neural Voice Gateway (Studio MP3)',
+          latencyMs: Date.now() - startTime,
+          profile: selectedProfile
+        };
       }
-
-      return {
-        success: true,
-        audioUrl,
-        durationSec: Math.max(2, Math.round(text.length / 14)),
-        engine: selectedProfile.engine,
-        routedVia: 'Topdoo Neural Voice Gateway (Studio MP3)',
-        latencyMs: Date.now() - startTime,
-        profile: selectedProfile
-      };
     }
   } catch (_) {
-    // Nếu endpoint server bận, fallback xuống Web Speech Engine bên dưới
+    // Nếu endpoint server bận hoặc trả về non-audio (SPA fallback), rơi xuống Web Speech Engine bên dưới
   }
 
   // 2. Chế độ Fallback qua Web Speech Audio Engine
