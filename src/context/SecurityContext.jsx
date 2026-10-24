@@ -1200,7 +1200,7 @@ export function SecurityProvider({ children }) {
     save9RouterConfig(newConfig);
     setNineRouterConfig(get9RouterConfig());
     refresh9RouterHealth();
-    showToast('Cấu hình 9Router', 'Đã lưu cài đặt 9Router Gateway thành công.', 'success');
+    showToast('Cấu hình AI Gateway', 'Đã lưu cài đặt AI Gateway thành công.', 'success');
   };
 
   // ─── Voicebox AI Studio Gateway State (Voice Cloning & TTS) ───

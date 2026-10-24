@@ -2261,6 +2261,33 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
 
         {/* Header Right Actions */}
         <div className="dev-dash-header-right">
+          {/* Topdoo Copilot Chatbot Button */}
+          <button
+            type="button"
+            className="dev-dash-icon-btn"
+            style={{
+              background: 'rgba(14, 165, 233, 0.1)',
+              border: '1px solid rgba(14, 165, 233, 0.3)',
+              color: '#0284c7',
+              borderRadius: 8,
+              padding: '6px 12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontWeight: 600,
+              fontSize: 13,
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              if (typeof openCopilot === 'function') openCopilot();
+              else window.dispatchEvent(new CustomEvent('topdoo:open-copilot'));
+            }}
+            title="Mở Trợ lý AI Topdoo Copilot"
+          >
+            <Bot size={16} />
+            <span>AI Copilot</span>
+          </button>
+
           {/* Notification bell */}
           <button
             type="button"
@@ -2501,6 +2528,19 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
               >
                 <Tv size={18} />
                 <span>Playground</span>
+              </button>
+
+              <button
+                type="button"
+                className="dev-dash-nav-item"
+                style={{ color: '#0284c7' }}
+                onClick={() => {
+                  if (typeof openCopilot === 'function') openCopilot();
+                  else window.dispatchEvent(new CustomEvent('topdoo:open-copilot'));
+                }}
+              >
+                <Bot size={18} />
+                <span>AI Copilot (Trợ lý)</span>
               </button>
 
               <button
