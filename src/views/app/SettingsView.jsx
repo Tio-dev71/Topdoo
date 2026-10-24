@@ -580,7 +580,7 @@ export function SettingsView() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 20 }}>⚡</span>
-                <span>9Router AI Gateway (Cổng kết nối AI cục bộ & đa nhà cung cấp)</span>
+                <span>Topdoo AI Gateway (Cổng kết nối AI bảo mật & đa nhà cung cấp)</span>
               </h2>
 
               <span style={{
@@ -596,18 +596,18 @@ export function SettingsView() {
                 gap: 6
               }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: nineRouterHealth?.isOnline ? '#059669' : '#D97706' }} />
-                <span>{nineRouterHealth?.isOnline ? `Online (${nineRouterHealth.modelsCount || 49} models)` : 'Chưa kết nối (Port 20128)'}</span>
+                <span>{nineRouterHealth?.isOnline ? `Online (${nineRouterHealth.modelsCount || 49} models)` : 'Chưa kết nối'}</span>
               </span>
             </div>
 
             <p style={{ fontSize: 13, color: '#64748B', marginTop: 0, marginBottom: 16 }}>
-              Topdoo AI sử dụng <strong>9Router</strong> làm cầu nối thông minh để định tuyến tới hơn 40 nhà cung cấp (OpenAI, Anthropic Claude, Google Gemini, DeepSeek, Grok...), tự động tối ưu token (RTK) và tự động fallback chống nghẽn mạng.
+              Topdoo AI sử dụng <strong>Topdoo AI Gateway Core</strong> làm cầu nối thông minh để định tuyến tới hơn 40 nhà cung cấp (OpenAI, Anthropic Claude, Google Gemini, DeepSeek, Grok...), tự động tối ưu token (RTK) và tự động fallback chống nghẽn mạng.
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 16 }}>
               <div>
                 <label style={{ fontSize: 12.5, fontWeight: 700, color: '#0F172A', display: 'block', marginBottom: 6 }}>
-                  9Router Gateway Endpoint URL
+                  AI Gateway Endpoint URL
                 </label>
                 <input
                   type="text"
@@ -629,7 +629,7 @@ export function SettingsView() {
 
               <div>
                 <label style={{ fontSize: 12.5, fontWeight: 700, color: '#0F172A', display: 'block', marginBottom: 6 }}>
-                  9Router API Key (Bearer Token)
+                  AI Gateway API Key (Bearer Token)
                 </label>
                 <input
                   type="text"
@@ -657,7 +657,7 @@ export function SettingsView() {
                     ✓ Kết nối bình thường. Độ trễ ping: {nineRouterHealth.latencyMs || 20}ms.
                   </span>
                 ) : (
-                  <span>Gợi ý: Mở terminal chạy lệnh <code style={{ color: '#2563EB', fontWeight: 700 }}>9router</code> để kích hoạt server.</span>
+                  <span>Hạ tầng AI Gateway nội bộ bảo mật cao Topdoo.</span>
                 )}
               </div>
 
@@ -670,9 +670,9 @@ export function SettingsView() {
                     const res = await refresh9RouterHealth();
                     setIsPinging(false);
                     if (res?.isOnline) {
-                      showToast('9Router Online', `Phát hiện ${res.modelsCount} models đang hoạt động.`, 'success');
+                      showToast('AI Gateway Online', `Phát hiện ${res.modelsCount} models đang hoạt động.`, 'success');
                     } else {
-                      showToast('9Router Offline', 'Không phản hồi từ port 20128.', 'warning');
+                      showToast('AI Gateway Offline', 'Không có phản hồi từ máy chủ AI.', 'warning');
                     }
                   }}
                   className="btn btn-secondary btn-sm"
@@ -692,7 +692,7 @@ export function SettingsView() {
                   className="btn btn-primary btn-sm"
                   style={{ backgroundColor: '#2563EB' }}
                 >
-                  Lưu cấu hình 9Router
+                  Lưu cấu hình AI Gateway
                 </button>
               </div>
             </div>

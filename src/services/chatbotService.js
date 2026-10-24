@@ -22,12 +22,12 @@ MỤC TIÊU & NHIỆM VỤ CỦA BẠN:
    - Dẫn nguồn: Nhắc người dùng có thể tra cứu thêm trực tiếp trên Topdoo Quick Check hoặc Cổng CheckScam / An Toàn Thông Tin Quốc Gia.`;
 
 export const AVAILABLE_9ROUTER_MODELS = [
-  { id: 'kr/auto', name: 'Auto Optimized (Khuyên dùng - Nhanh, Tiết kiệm)', speed: 'Cực nhanh', provider: '9Router Core' },
-  { id: 'kr/auto-thinking', name: 'Auto Thinking (Suy luận sâu CoT)', speed: 'Trung bình', provider: '9Router Core' },
-  { id: 'kr/deepseek-3.2', name: 'DeepSeek 3.2 (Chuyên gia thuật toán & Logic)', speed: 'Nhanh', provider: 'DeepSeek via 9Router' },
-  { id: 'kr/claude-sonnet-4.5', name: 'Claude Sonnet 4.5 (Tư duy ngôn ngữ & Phân tích chuyên sâu)', speed: 'Nhanh', provider: 'Anthropic via 9Router' },
-  { id: 'kr/glm-5', name: 'GLM 5 (Xử lý tiếng Việt & đa nhiệm tốt)', speed: 'Nhanh', provider: 'Zhipu via 9Router' },
-  { id: 'kr/qwen3-coder-next', name: 'Qwen 3 Coder Next (Phân tích mã độc & Payload)', speed: 'Rất nhanh', provider: 'Qwen via 9Router' }
+  { id: 'kr/auto', name: 'Auto Optimized (Khuyên dùng - Nhanh, Tiết kiệm)', speed: 'Cực nhanh', provider: 'Topdoo AI Core' },
+  { id: 'kr/auto-thinking', name: 'Auto Thinking (Suy luận sâu CoT)', speed: 'Trung bình', provider: 'Topdoo AI Core' },
+  { id: 'kr/deepseek-3.2', name: 'DeepSeek 3.2 (Chuyên gia thuật toán & Logic)', speed: 'Nhanh', provider: 'DeepSeek AI' },
+  { id: 'kr/claude-sonnet-4.5', name: 'Claude Sonnet 4.5 (Tư duy ngôn ngữ & Phân tích chuyên sâu)', speed: 'Nhanh', provider: 'Anthropic Claude' },
+  { id: 'kr/glm-5', name: 'GLM 5 (Xử lý tiếng Việt & đa nhiệm tốt)', speed: 'Nhanh', provider: 'Zhipu GLM' },
+  { id: 'kr/qwen3-coder-next', name: 'Qwen 3 Coder Next (Phân tích mã độc & Payload)', speed: 'Rất nhanh', provider: 'Alibaba Qwen' }
 ];
 
 const CONFIG_STORAGE_KEY = 'topdoo_security_chatbot_config';
@@ -153,7 +153,7 @@ export const streamSecurityChat = async ({
 
     if (!response.ok) {
       const errorText = await response.text();
-      let errorMsg = `Lỗi máy chủ AI 9Router (${response.status})`;
+      let errorMsg = `Lỗi máy chủ AI Topdoo (${response.status})`;
       try {
         const parsed = JSON.parse(errorText);
         if (parsed.error?.message) errorMsg = parsed.error.message;

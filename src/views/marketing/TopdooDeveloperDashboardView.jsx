@@ -98,6 +98,9 @@ import { useSecurity } from '../../context/SecurityContext';
 
 export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
   const {
+    user,
+    userRole,
+    openCopilot,
     navigateMarketing,
     showToast,
     setIsGlobalSearchOpen,
@@ -878,88 +881,24 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
   // =========================================================================
   // API KEYS STATE & MOCK DATA (QUẢN LÝ API KEY)
   // =========================================================================
-  const [apiKeysList, setApiKeysList] = useState([
-    {
-      id: 'key-1',
-      name: 'Web App Production',
-      desc: 'Sử dụng cho ứng dụng web chính thức',
-      prefix: 'sk-8f3d',
-      suffix: 'a1b2',
-      rawKey: 'sk-8f3d9941a87b41e289f64a1b2',
-      project: 'Chatbot EduTech',
-      permissions: ['Chat', 'RAG'],
-      createdAtDate: '24/04/2025',
-      createdAtTime: '10:24',
-      expiresAt: '24/04/2026',
-      status: 'active',
-      statusLabel: 'Đang hoạt động',
-      subStatus: null
-    },
-    {
-      id: 'key-2',
-      name: 'Mobile App',
-      desc: 'Ứng dụng di động (iOS/Android)',
-      prefix: 'sk-1a9c',
-      suffix: '7d4e',
-      rawKey: 'sk-1a9c82f0714b38d924e17d4e',
-      project: 'Topdoo Studio',
-      permissions: ['Chat', 'TTS'],
-      createdAtDate: '18/04/2025',
-      createdAtTime: '09:15',
-      expiresAt: '18/04/2026',
-      status: 'active',
-      statusLabel: 'Đang hoạt động',
-      subStatus: null
-    },
-    {
-      id: 'key-3',
-      name: 'Data Processing',
-      desc: 'Xử lý tài liệu, OCR, phân tích dữ liệu',
-      prefix: 'sk-4b7e',
-      suffix: '9c3f',
-      rawKey: 'sk-4b7e5124c98a21f837d09c3f',
-      project: 'Document AI',
-      permissions: ['OCR', 'RAG'],
-      createdAtDate: '10/04/2025',
-      createdAtTime: '14:32',
-      expiresAt: '10/07/2025',
-      status: 'expiring',
-      statusLabel: 'Sắp hết hạn',
-      subStatus: 'Còn 15 ngày'
-    },
-    {
-      id: 'key-4',
-      name: 'Testing Key',
-      desc: 'Dùng cho môi trường test',
-      prefix: 'sk-6d2a',
-      suffix: '3f9b',
-      rawKey: 'sk-6d2a1984d72b53f619e43f9b',
-      project: 'Playground',
-      permissions: ['Chat', 'Image'],
-      createdAtDate: '05/04/2025',
-      createdAtTime: '16:10',
-      expiresAt: '-',
-      status: 'revoked',
-      statusLabel: 'Đã thu hồi',
-      subStatus: 'Thu hồi ngày 20/04/2025'
-    },
-    {
-      id: 'key-5',
-      name: 'Internal Tool',
-      desc: 'Công cụ nội bộ',
-      prefix: 'sk-9c1f',
-      suffix: '6e8d',
-      rawKey: 'sk-9c1fe018a47d28c341b56e8d',
-      project: 'Internal',
-      permissions: ['All'],
-      createdAtDate: '01/04/2025',
-      createdAtTime: '11:20',
-      expiresAt: '01/04/2026',
-      status: 'active',
-      statusLabel: 'Đang hoạt động',
-      subStatus: null
+  const [apiKeysList, setApiKeysList] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('topdoo_dev_api_keys');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (_) {}
     }
-  ]);
+    return [];
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('topdoo_dev_api_keys', JSON.stringify(apiKeysList));
+    }
+  }, [apiKeysList]);
 
   const [keyActiveTab, setKeyActiveTab] = useState('all'); // 'all' | 'active' | 'expiring' | 'revoked'
   const [keySearchQuery, setKeySearchQuery] = useState('');
@@ -1329,14 +1268,14 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
       sender: 'bot',
       name: 'Topdoo AI Support',
       time: '12:30',
-      text: 'Xin chào Nguyễn Văn A! Tôi là trợ lý ảo hỗ trợ kỹ thuật Topdoo. Bạn cần hỗ trợ về API Key, tích hợp mô hình AI, xử lý lỗi hay hóa đơn?'
+      text: `Xin chào ${user?.fullName || 'bạn'}! Tôi là trợ lý ảo hỗ trợ kỹ thuật Topdoo. Bạn cần hỗ trợ về API Key, tích hợp mô hình AI, xử lý lỗi hay hóa đơn?`
     }
   ]);
   const [chatInputText, setChatInputText] = useState('');
 
   // Ticket form
-  const [ticketName, setTicketName] = useState('Nguyễn Văn A');
-  const [ticketEmail, setTicketEmail] = useState('developer@topdoo.vn');
+  const [ticketName, setTicketName] = useState(() => user?.fullName || 'Developer');
+  const [ticketEmail, setTicketEmail] = useState(() => user?.email || 'developer@topdoo.com');
   const [ticketCategory, setTicketCategory] = useState('api');
   const [ticketPriority, setTicketPriority] = useState('medium');
   const [ticketSubject, setTicketSubject] = useState('');
@@ -1475,8 +1414,8 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
     const userMsg = {
       id: Date.now(),
       sender: 'user',
-      name: 'Nguyễn Văn A',
-      time: '12:35',
+      name: user?.fullName || profileName || 'Developer',
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
       text: chatInputText.trim()
     };
     setChatMessages(prev => [...prev, userMsg]);
@@ -1513,81 +1452,25 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
     showToast('Tổng đài hỗ trợ', 'Đang kết nối tới hotline Topdoo: 1900 1234 (8:00 - 22:00, cước phí 1.000đ/phút).', 'info');
   };
 
-  // Projects list
-  const [projectsList, setProjectsList] = useState([
-    {
-      id: 'proj-1',
-      name: 'Chatbot Tư vấn Khách hàng',
-      starred: true,
-      desc: 'Xây dựng chatbot AI hỗ trợ tư vấn sản phẩm, giải đáp thắc mắc cho khách hàng 24/7.',
-      iconType: 'chat',
-      tags: [
-        { label: 'Topdoo AI', type: 'tech' },
-        { label: 'NLP', type: 'tech' },
-        { label: 'Webhook', type: 'tech' },
-        { label: 'Production', type: 'status-green', prefix: '↓' }
-      ],
-      service: 'topdoo-ai',
-      status: 'active',
-      statusLabel: 'Đang hoạt động',
-      progress: 80,
-      updatedAt: '24/04/2025',
-      updatedTimestamp: 1745452800000,
-      members: 3,
-      apiCallsNum: 12500,
-      apiCalls: '12.5K',
-      actionText: 'Mở dự án',
-      actionType: 'primary'
-    },
-    {
-      id: 'proj-2',
-      name: 'Phân tích hình ảnh AI',
-      starred: false,
-      desc: 'Ứng dụng AI để phân tích, nhận diện đối tượng trong hình ảnh, phục vụ cho dự án giáo dục.',
-      iconType: 'image',
-      tags: [
-        { label: 'Topdoo Vision', type: 'tech' },
-        { label: 'Python', type: 'tech' },
-        { label: 'Image AI', type: 'tech' },
-        { label: 'Testing', type: 'status-purple', prefix: '↳' }
-      ],
-      service: 'topdoo-vision',
-      status: 'paused',
-      statusLabel: 'Tạm dừng',
-      progress: 45,
-      updatedAt: '18/04/2025',
-      updatedTimestamp: 1744934400000,
-      members: 2,
-      apiCallsNum: 3200,
-      apiCalls: '3.2K',
-      actionText: 'Tiếp tục',
-      actionType: 'outline'
-    },
-    {
-      id: 'proj-3',
-      name: 'Tự động tóm tắt văn bản',
-      starred: false,
-      desc: 'Ứng dụng AI tóm tắt nội dung tài liệu, bài viết dài thành các ý chính ngắn gọn.',
-      iconType: 'doc',
-      tags: [
-        { label: 'Topdoo AI', type: 'tech' },
-        { label: 'LLM', type: 'tech' },
-        { label: 'Summarize', type: 'tech' },
-        { label: 'Development', type: 'status-green', prefix: '↓' }
-      ],
-      service: 'topdoo-ai',
-      status: 'active',
-      statusLabel: 'Đang hoạt động',
-      progress: 30,
-      updatedAt: '10/04/2025',
-      updatedTimestamp: 1744243200000,
-      members: 1,
-      apiCallsNum: 1800,
-      apiCalls: '1.8K',
-      actionText: 'Mở dự án',
-      actionType: 'primary'
+  // Projects list (Loaded from localStorage)
+  const [projectsList, setProjectsList] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('topdoo_dev_projects');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (_) {}
     }
-  ]);
+    return [];
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('topdoo_dev_projects', JSON.stringify(projectsList));
+    }
+  }, [projectsList]);
 
   const handleToggleStar = (id, name, e) => {
     e.stopPropagation();
@@ -1746,14 +1629,34 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
       'account'
     )
   ); // 'account' | 'security' | 'notifications' | 'appearance' | 'integrations' | 'language'
-  const [profileName, setProfileName] = useState('Nguyễn Văn A');
-  const [profileEmail, setProfileEmail] = useState('nguyenvana@gmail.com');
-  const [profileRole, setProfileRole] = useState('Developer');
+  const [profileName, setProfileName] = useState(() => user?.fullName || (user?.email ? user.email.split('@')[0] : 'Developer'));
+  const [profileEmail, setProfileEmail] = useState(() => user?.email || 'developer@topdoo.com');
+  const [profileRole, setProfileRole] = useState(() => userRole === 'admin' ? 'Admin SecOps' : 'Developer');
   const [profileAvatar, setProfileAvatar] = useState('/developer_avatar.jpg');
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
-  const [editNameInput, setEditNameInput] = useState('Nguyễn Văn A');
-  const [editEmailInput, setEditEmailInput] = useState('nguyenvana@gmail.com');
-  const [editRoleInput, setEditRoleInput] = useState('Developer');
+  const [editNameInput, setEditNameInput] = useState(() => user?.fullName || (user?.email ? user.email.split('@')[0] : 'Developer'));
+  const [editEmailInput, setEditEmailInput] = useState(() => user?.email || 'developer@topdoo.com');
+  const [editRoleInput, setEditRoleInput] = useState(() => userRole === 'admin' ? 'Admin SecOps' : 'Developer');
+
+  useEffect(() => {
+    if (user?.fullName) {
+      setProfileName(user.fullName);
+      setEditNameInput(user.fullName);
+    } else if (user?.email) {
+      const emailName = user.email.split('@')[0];
+      setProfileName(emailName);
+      setEditNameInput(emailName);
+    }
+    if (user?.email) {
+      setProfileEmail(user.email);
+      setEditEmailInput(user.email);
+    }
+    if (userRole) {
+      const roleName = userRole === 'admin' ? 'Admin SecOps' : 'Developer';
+      setProfileRole(roleName);
+      setEditRoleInput(roleName);
+    }
+  }, [user, userRole]);
 
   // Display / Appearance preferences
   const [themeMode, setThemeMode] = useState('light'); // 'light' | 'dark' | 'system'
@@ -2748,7 +2651,7 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
               {/* Left Column: Greeting */}
               <div className="dev-dash-hero-left">
                 <h1 className="dev-dash-greeting-title">
-                  Xin chào, Nguyễn Văn A! <span className="dev-dash-wave">👋</span>
+                  Xin chào, {user?.fullName || profileName || 'Developer'}! <span className="dev-dash-wave">👋</span>
                 </h1>
                 <p className="dev-dash-greeting-sub1">
                   Chào mừng bạn trở lại Topdoo Developer.
@@ -2797,10 +2700,10 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
                   <Package size={22} color="#0084FF" />
                 </div>
                 <span className="dev-dash-metric-label">Tổng dự án</span>
-                <div className="dev-dash-metric-val">3</div>
+                <div className="dev-dash-metric-val">{projectsList.length}</div>
                 <div className="dev-dash-metric-trend green">
                   <TrendingUp size={13} />
-                  <span>+1 dự án</span>
+                  <span>{projectsList.length > 0 ? `${projectsList.filter(p => p.status === 'active').length} đang chạy` : 'Chưa có dự án'}</span>
                 </div>
                 <div className="dev-dash-metric-link">
                   <span>Xem chi tiết</span>
@@ -2817,9 +2720,9 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
                   <Key size={22} color="#8B5CF6" />
                 </div>
                 <span className="dev-dash-metric-label">API Key</span>
-                <div className="dev-dash-metric-val">5</div>
+                <div className="dev-dash-metric-val">{apiKeysList.length}</div>
                 <div className="dev-dash-metric-trend gray">
-                  <span>2 đang hoạt động</span>
+                  <span>{apiKeysList.filter(k => k.status === 'active').length} đang hoạt động</span>
                 </div>
                 <div className="dev-dash-metric-link">
                   <span>Quản lý API Key</span>
@@ -2836,10 +2739,14 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
                   <Users size={22} color="#10B981" />
                 </div>
                 <span className="dev-dash-metric-label">Lượt sử dụng API</span>
-                <div className="dev-dash-metric-val">12.8K</div>
+                <div className="dev-dash-metric-val">
+                  {apiKeysList.reduce((acc, k) => acc + (k.apiCallsNum || 0), 0) > 0
+                    ? apiKeysList.reduce((acc, k) => acc + (k.apiCallsNum || 0), 0).toLocaleString('vi-VN')
+                    : '0'}
+                </div>
                 <div className="dev-dash-metric-trend green">
                   <TrendingUp size={13} />
-                  <span>+18% so với tháng trước</span>
+                  <span>Thời gian thực</span>
                 </div>
                 <div className="dev-dash-metric-link">
                   <span>Xem thống kê</span>
@@ -2856,9 +2763,9 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
                   <CreditCard size={22} color="#F97316" />
                 </div>
                 <span className="dev-dash-metric-label">Gói dịch vụ</span>
-                <div className="dev-dash-metric-val">Free</div>
+                <div className="dev-dash-metric-val">{userRole === 'admin' ? 'Enterprise' : 'Developer Free'}</div>
                 <div className="dev-dash-metric-trend gray">
-                  <span>Còn 14 ngày dùng thử</span>
+                  <span>{user?.email || 'Tài khoản hoạt động'}</span>
                 </div>
                 <div className="dev-dash-metric-link">
                   <span>Nâng cấp ngay</span>
@@ -3028,85 +2935,71 @@ export function TopdooDeveloperDashboardView({ initialTab, initialSubTab }) {
                 </div>
 
                 <div className="dev-dash-project-list">
-                  {/* Project 1 */}
-                  <div className="dev-dash-project-item">
-                    <div className="dev-dash-project-icon emerald">
-                      <MessageSquare size={17} color="#FFFFFF" />
+                  {projectsList.length === 0 ? (
+                    <div style={{ padding: '32px 16px', textAlign: 'center', color: '#64748b' }}>
+                      <Package size={34} color="#94a3b8" style={{ margin: '0 auto 10px' }} />
+                      <div style={{ fontWeight: 600, color: '#334155', fontSize: 14, marginBottom: 4 }}>Chưa có dự án nào</div>
+                      <div style={{ fontSize: 12.5, color: '#64748b', marginBottom: 16 }}>Bắt đầu bằng cách tạo dự án mới hoặc trò chuyện với Topdoo Copilot.</div>
+                      <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+                        <button
+                          type="button"
+                          className="dev-proj-create-btn"
+                          style={{ padding: '7px 14px', fontSize: 12.5 }}
+                          onClick={() => setIsCreateModalOpen(true)}
+                        >
+                          <Plus size={14} />
+                          <span>Tạo dự án mới</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="dev-proj-create-btn"
+                          style={{ padding: '7px 14px', fontSize: 12.5, background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}
+                          onClick={() => {
+                            if (typeof openCopilot === 'function') openCopilot();
+                            else window.dispatchEvent(new CustomEvent('topdoo:open-copilot'));
+                          }}
+                        >
+                          <Bot size={14} />
+                          <span>Mở AI Copilot</span>
+                        </button>
+                      </div>
                     </div>
-                    <div className="dev-dash-project-info">
-                      <h4 className="dev-dash-project-name">Chatbot tư vấn khách hàng</h4>
-                      <span className="dev-dash-project-time">Cập nhật 2 giờ trước</span>
-                    </div>
-                    <span className="dev-dash-status-pill active">Đang hoạt động</span>
-                    <button
-                      type="button"
-                      className="dev-dash-item-menu"
-                      onClick={() => showToast('Dự án', 'Mở tùy chọn cấu hình Chatbot.', 'info')}
-                      aria-label="Tùy chọn"
-                    >
-                      <MoreVertical size={16} />
-                    </button>
-                  </div>
-
-                  {/* Project 2 */}
-                  <div className="dev-dash-project-item">
-                    <div className="dev-dash-project-icon purple">
-                      <FileText size={17} color="#FFFFFF" />
-                    </div>
-                    <div className="dev-dash-project-info">
-                      <h4 className="dev-dash-project-name">Phân tích văn bản AI</h4>
-                      <span className="dev-dash-project-time">Cập nhật 1 ngày trước</span>
-                    </div>
-                    <span className="dev-dash-status-pill paused">Tạm dừng</span>
-                    <button
-                      type="button"
-                      className="dev-dash-item-menu"
-                      onClick={() => showToast('Dự án', 'Mở tùy chọn cấu hình Phân tích văn bản.', 'info')}
-                      aria-label="Tùy chọn"
-                    >
-                      <MoreVertical size={16} />
-                    </button>
-                  </div>
-
-                  {/* Project 3 */}
-                  <div className="dev-dash-project-item">
-                    <div className="dev-dash-project-icon pink">
-                      <ImageIcon size={17} color="#FFFFFF" />
-                    </div>
-                    <div className="dev-dash-project-info">
-                      <h4 className="dev-dash-project-name">Tạo ảnh từ mô tả</h4>
-                      <span className="dev-dash-project-time">Cập nhật 3 ngày trước</span>
-                    </div>
-                    <span className="dev-dash-status-pill active">Đang hoạt động</span>
-                    <button
-                      type="button"
-                      className="dev-dash-item-menu"
-                      onClick={() => showToast('Dự án', 'Mở tùy chọn cấu hình Tạo ảnh.', 'info')}
-                      aria-label="Tùy chọn"
-                    >
-                      <MoreVertical size={16} />
-                    </button>
-                  </div>
-
-                  {/* Project 4 */}
-                  <div className="dev-dash-project-item">
-                    <div className="dev-dash-project-icon blue">
-                      <GraduationCap size={17} color="#FFFFFF" />
-                    </div>
-                    <div className="dev-dash-project-info">
-                      <h4 className="dev-dash-project-name">Trợ lý học tập</h4>
-                      <span className="dev-dash-project-time">Cập nhật 5 ngày trước</span>
-                    </div>
-                    <span className="dev-dash-status-pill paused">Tạm dừng</span>
-                    <button
-                      type="button"
-                      className="dev-dash-item-menu"
-                      onClick={() => showToast('Dự án', 'Mở tùy chọn cấu hình Trợ lý học tập.', 'info')}
-                      aria-label="Tùy chọn"
-                    >
-                      <MoreVertical size={16} />
-                    </button>
-                  </div>
+                  ) : (
+                    projectsList.slice(0, 4).map((proj) => (
+                      <div
+                        key={proj.id}
+                        className="dev-dash-project-item"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          if (typeof openCopilot === 'function') openCopilot();
+                          else window.dispatchEvent(new CustomEvent('topdoo:open-copilot'));
+                        }}
+                      >
+                        <div className={`dev-dash-project-icon ${proj.iconColor || 'blue'}`}>
+                          <MessageSquare size={17} color="#FFFFFF" />
+                        </div>
+                        <div className="dev-dash-project-info">
+                          <h4 className="dev-dash-project-name">{proj.name}</h4>
+                          <span className="dev-dash-project-time">{proj.updatedAt || 'Vừa xong'} • {proj.members || 1} người</span>
+                        </div>
+                        <span className={`dev-dash-status-pill ${proj.status === 'active' ? 'active' : 'paused'}`}>
+                          {proj.status === 'active' ? 'Đang hoạt động' : 'Tạm dừng'}
+                        </span>
+                        <button
+                          type="button"
+                          className="dev-dash-item-menu"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (typeof openCopilot === 'function') openCopilot();
+                            else window.dispatchEvent(new CustomEvent('topdoo:open-copilot'));
+                          }}
+                          aria-label="Mở AI"
+                        >
+                          <ArrowRight size={16} />
+                        </button>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -5538,8 +5431,8 @@ print(response.choices[0].message.content)`}</code>
                     </tr>
                   </thead>
                   <tbody>
-                    {apiKeysList
-                      .filter(k => {
+                    {(() => {
+                      const filteredApiKeys = apiKeysList.filter(k => {
                         // Tab Filter
                         if (keyActiveTab === 'active' && k.status !== 'active') return false;
                         if (keyActiveTab === 'expiring' && k.status !== 'expiring') return false;
@@ -5563,8 +5456,30 @@ print(response.choices[0].message.content)`}</code>
                           );
                         }
                         return true;
-                      })
-                      .map((keyItem) => {
+                      });
+
+                      if (filteredApiKeys.length === 0) {
+                        return (
+                          <tr>
+                            <td colSpan="9" style={{ textAlign: 'center', padding: '48px 16px', color: '#64748b' }}>
+                              <Key size={36} color="#94a3b8" style={{ margin: '0 auto 12px' }} />
+                              <div style={{ fontWeight: 600, color: '#334155', fontSize: 15, marginBottom: 4 }}>Chưa có API Key nào</div>
+                              <div style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>Tạo khóa truy cập bí mật đầu tiên để kết nối ứng dụng với hệ thống AI của Topdoo.</div>
+                              <button
+                                type="button"
+                                className="dev-keys-create-btn"
+                                style={{ margin: '0 auto', display: 'inline-flex' }}
+                                onClick={() => setIsCreateModalOpen(true)}
+                              >
+                                <Plus size={16} />
+                                <span>Tạo API Key mới</span>
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      }
+
+                      return filteredApiKeys.map((keyItem) => {
                         const isSelected = selectedKeyIds.includes(keyItem.id);
                         const isRevealed = revealedKeyIds.includes(keyItem.id);
                         const isMenuOpen = activeActionMenuKeyId === keyItem.id;
@@ -5710,7 +5625,8 @@ print(response.choices[0].message.content)`}</code>
                             </td>
                           </tr>
                         );
-                      })}
+                      });
+                    })()}
                   </tbody>
                 </table>
               </div>

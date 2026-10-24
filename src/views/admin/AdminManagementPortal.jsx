@@ -117,7 +117,7 @@ export function AdminManagementPortal() {
       saveChatbotConfig(config);
       setTimeout(() => {
         setIsSaving(false);
-        showToast('Đã lưu cấu hình', 'System Prompt và tham số AI 9Router đã được cập nhật toàn hệ thống.', 'success');
+        showToast('Đã lưu cấu hình', 'System Prompt và tham số AI đã được cập nhật toàn hệ thống.', 'success');
       }, 400);
     } catch (err) {
       setIsSaving(false);
@@ -150,10 +150,10 @@ export function AdminManagementPortal() {
         onDone: (finalText) => {
           setTestResponse(finalText);
           setIsTesting(false);
-          showToast('Kiểm thử hoàn tất', '9Router đã phản hồi thành công.', 'success');
+          showToast('Kiểm thử hoàn tất', 'Mô hình AI đã phản hồi thành công.', 'success');
         },
         onError: (err) => {
-          setTestResponse(`⚠️ Lỗi 9Router: ${err.message}`);
+          setTestResponse(`⚠️ Lỗi phản hồi AI: ${err.message}`);
           setIsTesting(false);
         }
       });
@@ -241,7 +241,7 @@ export function AdminManagementPortal() {
               <span className="admin-domain-chip">admin.topdoo.com</span>
               <span className="admin-status-chip">Live v2.5</span>
             </div>
-            <p className="admin-subtext">Trung tâm Kiểm soát Prompt AI 9Router, CSDL Tình báo Mối đe dọa & Hạ tầng SecOps</p>
+            <p className="admin-subtext">Trung tâm Kiểm soát Prompt AI, CSDL Tình báo Mối đe dọa & Hạ tầng SecOps</p>
           </div>
         </div>
 
@@ -273,7 +273,7 @@ export function AdminManagementPortal() {
           className={`admin-tab-btn ${activeTab === 'prompt' ? 'active' : ''}`}
         >
           <Bot size={16} />
-          <span>Quản lý Prompt & 9Router</span>
+          <span>Quản lý Prompt & AI Engine</span>
         </button>
         <button
           onClick={() => setActiveTab('threats')}
@@ -287,7 +287,7 @@ export function AdminManagementPortal() {
           className={`admin-tab-btn ${activeTab === 'system' ? 'active' : ''}`}
         >
           <Server size={16} />
-          <span>Hạ tầng & 9Router Telemetry</span>
+          <span>Hạ tầng & AI Telemetry</span>
           {routerStatus.live && <span className="tab-status-dot online" />}
         </button>
         <button
@@ -312,7 +312,7 @@ export function AdminManagementPortal() {
                     <Bot size={18} className="card-header-icon" />
                     <div>
                       <h3 className="card-title">Cấu hình System Prompt (Admin)</h3>
-                      <p className="card-desc">Chỉ đạo hành vi, phong cách ứng phó và kiến thức bảo mật cho 9Router</p>
+                      <p className="card-desc">Chỉ đạo hành vi, phong cách ứng phó và kiến thức bảo mật cho trợ lý AI</p>
                     </div>
                   </div>
                   <div className="card-header-actions">
@@ -350,7 +350,7 @@ export function AdminManagementPortal() {
 
                 <div className="form-row-2">
                   <div className="form-group">
-                    <label className="form-label">Mô hình AI trên 9Router (Cụm VPS Port 20128)</label>
+                    <label className="form-label">Mô hình AI vận hành (Cụm VPS Port 20128)</label>
                     <select
                       value={config.model}
                       onChange={(e) => setConfig({ ...config, model: e.target.value })}
@@ -420,13 +420,13 @@ export function AdminManagementPortal() {
                   <div className="card-header-left">
                     <Sparkles size={18} className="card-header-icon highlight" />
                     <div>
-                      <h3 className="card-title">Sandbox Kiểm Thử Trực Tiếp (9Router Live)</h3>
+                      <h3 className="card-title">Sandbox Kiểm Thử Trực Tiếp (AI Live)</h3>
                       <p className="card-desc">Thử nghiệm phản hồi thực tế từ server với prompt hiện tại</p>
                     </div>
                   </div>
                   <div className="card-header-actions">
                     <span className={`status-pill ${routerStatus.live ? 'online' : 'offline'}`}>
-                      {routerStatus.live ? `9Router Online (${routerStatus.latency})` : 'Chưa kết nối'}
+                      {routerStatus.live ? `AI Core Online (${routerStatus.latency})` : 'Chưa kết nối'}
                     </span>
                   </div>
                 </div>
@@ -447,7 +447,7 @@ export function AdminManagementPortal() {
                       className="playground-run-btn"
                     >
                       {isTesting ? <RefreshCw size={15} className="spin" /> : <Send size={15} />}
-                      <span>{isTesting ? '9Router đang suy luận...' : 'Chạy Thử Nghiệm'}</span>
+                      <span>{isTesting ? 'AI đang suy luận...' : 'Chạy Thử Nghiệm'}</span>
                     </button>
                   </div>
 
@@ -458,7 +458,7 @@ export function AdminManagementPortal() {
                         <div className="terminal-text">{testResponse}</div>
                       ) : (
                         <div className="terminal-placeholder">
-                          Chưa có phản hồi. Nhấn &quot;Chạy Thử Nghiệm&quot; để gửi prompt tới cụm 9Router VPS và xem stream kết quả tại đây.
+                          Chưa có phản hồi. Nhấn &quot;Chạy Thử Nghiệm&quot; để gửi prompt tới cụm AI VPS và xem stream kết quả tại đây.
                         </div>
                       )}
                     </div>
@@ -634,7 +634,7 @@ export function AdminManagementPortal() {
                   <span className={`status-dot ${routerStatus.live ? 'online' : 'offline'}`} />
                 </div>
                 <div className="metric-value">{routerStatus.live ? 'Sẵn sàng 100%' : 'Chưa kết nối'}</div>
-                <div className="metric-label">Cụm AI 9Router Gateway (Port 20128)</div>
+                <div className="metric-label">Cụm AI Core Gateway (Port 20128)</div>
                 <div className="metric-footer">
                   <span>Độ trễ ping: {routerStatus.latency || 'N/A'}</span>
                   <span>Mô hình nạp: {routerStatus.modelsCount} models</span>
@@ -690,8 +690,8 @@ export function AdminManagementPortal() {
                     {routerStatus.live ? <CheckCircle size={16} color="#10b981" /> : <AlertCircle size={16} color="#ef4444" />}
                   </div>
                   <div className="diag-info">
-                    <span className="diag-name">9Router OpenAI-Compatible Endpoint (/api/9router/v1)</span>
-                    <span className="diag-detail">Proxy chuyển hướng tới http://127.0.0.1:20128/v1</span>
+                    <span className="diag-name">Topdoo AI Gateway Endpoint</span>
+                    <span className="diag-detail">Proxy chuyển hướng tới cổng AI Gateway nội bộ VPS</span>
                   </div>
                   <span className="diag-latency">{routerStatus.latency || 'Checking...'}</span>
                 </div>

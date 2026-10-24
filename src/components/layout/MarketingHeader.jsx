@@ -2088,14 +2088,14 @@ export function MarketingHeader() {
                 title="Tài khoản Developer"
               >
                 <img
-                  src="/developer_avatar.jpg"
-                  alt="Nguyễn Văn A"
+                  src={user?.avatarUrl || "/developer_avatar.jpg"}
+                  alt={user?.fullName || "Developer"}
                   className="user-badge-avatar"
                 />
                 <div className="user-badge-text">
-                  <span className="user-badge-name">Nguyễn Văn A</span>
+                  <span className="user-badge-name">{user?.fullName || user?.email?.split('@')[0] || "Developer"}</span>
                   <span className="user-badge-role">
-                    <span>Developer</span>
+                    <span>{user?.role || "Developer"}</span>
                     <ChevronDown size={11} />
                   </span>
                 </div>

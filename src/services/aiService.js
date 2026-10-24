@@ -4,7 +4,7 @@ export const AI_MODELS = [
   {
     id: 'gpt-5',
     name: 'GPT-5.5 Omni',
-    provider: 'OpenAI (via 9Router)',
+    provider: 'OpenAI',
     color: '#10A37F',
     creditCost: 15,
     avgLatency: '850ms',
@@ -15,7 +15,7 @@ export const AI_MODELS = [
   {
     id: 'claude',
     name: 'Claude Sonnet 4.6',
-    provider: 'Anthropic (via 9Router)',
+    provider: 'Anthropic',
     color: '#D97706',
     creditCost: 12,
     avgLatency: '920ms',
@@ -26,7 +26,7 @@ export const AI_MODELS = [
   {
     id: 'gemini',
     name: 'Gemini 3.6 Flash',
-    provider: 'Google (via 9Router)',
+    provider: 'Google',
     color: '#7C3AED',
     creditCost: 5,
     avgLatency: '340ms',
@@ -37,7 +37,7 @@ export const AI_MODELS = [
   {
     id: 'deepseek',
     name: 'DeepSeek R1 / Chat',
-    provider: 'DeepSeek (via 9Router)',
+    provider: 'DeepSeek',
     color: '#0284C7',
     creditCost: 8,
     avgLatency: '1100ms',
@@ -48,7 +48,7 @@ export const AI_MODELS = [
   {
     id: 'llama',
     name: 'Grok 4.5 / Llama 3.3',
-    provider: 'xAI / Meta (via 9Router)',
+    provider: 'xAI / Meta',
     color: '#2563EB',
     creditCost: 4,
     avgLatency: '410ms',
@@ -106,7 +106,7 @@ export const save9RouterConfig = (config) => {
 export const check9RouterHealth = async () => {
   const cfg = get9RouterConfig();
   if (!cfg.enabled) {
-    return { isOnline: false, reason: '9Router integration is disabled in settings.' };
+    return { isOnline: false, reason: 'AI Gateway integration is disabled in settings.' };
   }
 
   const startTime = Date.now();
@@ -144,7 +144,7 @@ export const check9RouterHealth = async () => {
     return {
       isOnline: false,
       endpoint: cfg.baseUrl,
-      error: err.name === 'AbortError' ? 'Timeout (3.5s)' : 'Connection refused. 9Router is not running.'
+      error: err.name === 'AbortError' ? 'Timeout (3.5s)' : 'Connection refused. AI Gateway is not responding.'
     };
   }
 };
@@ -218,7 +218,7 @@ export const executeAiPrompt = async (prompt, requestedModelId, options = {}) =>
   let activeModel = AI_MODELS.find(m => m.id === requestedModelId) || AI_MODELS[0];
   let isFallback = false;
   let fallbackReason = null;
-  let routedVia = '9Router AI Gateway';
+  let routedVia = 'Topdoo AI Gateway';
 
   const routerConfig = get9RouterConfig();
 
@@ -270,7 +270,7 @@ export const executeAiPrompt = async (prompt, requestedModelId, options = {}) =>
           model: activeModel,
           isFallback: false,
           fallbackReason: null,
-          routedVia: `9Router Gateway (${routerConfig.baseUrl} • ${parsed.model || targetModelName})`,
+          routedVia: `Topdoo AI Gateway (${parsed.model || targetModelName})`,
           metrics: {
             promptTokens,
             completionTokens,
@@ -280,14 +280,14 @@ export const executeAiPrompt = async (prompt, requestedModelId, options = {}) =>
           }
         };
       } else {
-        // Có lỗi từ 9Router (ví dụ 402 hoặc upstream error)
+        // Có lỗi từ upstream
         const errorMsg = parsed?.error || `HTTP ${resp.status} - ${rawText.slice(0, 100)}`;
         isFallback = true;
-        fallbackReason = `9Router Gateway (${targetModelName}): ${errorMsg}. Đang tự động chuyển hướng sang chế độ dự phòng an toàn.`;
+        fallbackReason = `Cổng AI Gateway (${targetModelName}): ${errorMsg}. Đang tự động chuyển hướng sang chế độ dự phòng an toàn.`;
       }
     } catch (err) {
       isFallback = true;
-      fallbackReason = `Không thể kết nối tới 9Router (${routerConfig.baseUrl}). Lỗi: ${err.message}. Tự động kích hoạt cơ chế dự phòng.`;
+      fallbackReason = `Không thể kết nối tới AI Gateway. Lỗi: ${err.message}. Tự động kích hoạt cơ chế dự phòng an toàn.`;
     }
   }
 

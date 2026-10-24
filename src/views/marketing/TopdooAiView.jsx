@@ -453,7 +453,7 @@ export function TopdooAiView() {
                           cursor: 'pointer',
                           marginRight: 4
                         }}
-                        title="Bấm để cấu hình 9Router AI Gateway"
+                        title="Bấm để cấu hình Topdoo AI Gateway"
                       >
                         <span style={{
                           width: 7,
@@ -462,7 +462,7 @@ export function TopdooAiView() {
                           background: nineRouterHealth?.isOnline ? '#10B981' : '#F59E0B',
                           boxShadow: nineRouterHealth?.isOnline ? '0 0 8px #10B981' : 'none'
                         }} />
-                        <span>9Router: {nineRouterHealth?.isOnline ? `Online (${nineRouterHealth.modelsCount || 49} models)` : 'Offline'}</span>
+                        <span>AI Gateway: {nineRouterHealth?.isOnline ? `Online (${nineRouterHealth.modelsCount || 49} models)` : 'Offline'}</span>
                         <Settings size={12} style={{ opacity: 0.8 }} />
                       </button>
 
@@ -1006,7 +1006,7 @@ export function TopdooAiView() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 20 }}>⚡</span>
                 <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#F8FAFC' }}>
-                  Cấu Hình 9Router AI Gateway
+                  Cấu Hình Topdoo AI Gateway
                 </h3>
               </div>
               <button
@@ -1037,12 +1037,12 @@ export function TopdooAiView() {
                 }} />
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: nineRouterHealth?.isOnline ? '#34D399' : '#FBBF24' }}>
-                    {nineRouterHealth?.isOnline ? '9Router Đang Hoạt Động' : '9Router Chưa Kết Nối'}
+                    {nineRouterHealth?.isOnline ? 'AI Gateway Đang Hoạt Động' : 'AI Gateway Chưa Kết Nối'}
                   </div>
                   <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
                     {nineRouterHealth?.isOnline
                       ? `${nineRouterHealth.modelsCount || 49} mô hình khả dụng • Độ trễ: ${nineRouterHealth.latencyMs || 25}ms`
-                      : 'Hãy chạy lệnh "9router" trong terminal để mở cổng 20128'}
+                      : 'Đang kết nối cổng AI Gateway nội bộ...'}
                   </div>
                 </div>
               </div>
@@ -1055,9 +1055,9 @@ export function TopdooAiView() {
                   const res = await refresh9RouterHealth();
                   setIsPinging9Router(false);
                   if (res?.isOnline) {
-                    showToast('Kết nối thành công', `Đã tìm thấy ${res.modelsCount} model trong 9Router!`, 'success');
+                    showToast('Kết nối thành công', `Đã tìm thấy ${res.modelsCount} model trong hệ thống AI!`, 'success');
                   } else {
-                    showToast('Không thể kết nối', 'Vui lòng kiểm tra lại 9Router server.', 'warning');
+                    showToast('Không thể kết nối', 'Vui lòng kiểm tra lại AI Gateway server.', 'warning');
                   }
                 }}
                 style={{
@@ -1079,7 +1079,7 @@ export function TopdooAiView() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#CBD5E1', marginBottom: 6 }}>
-                  9Router Base URL (OpenAI-compatible Endpoint):
+                  AI Gateway Base URL (OpenAI-compatible Endpoint):
                 </label>
                 <input
                   type="text"
@@ -1101,7 +1101,7 @@ export function TopdooAiView() {
 
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#CBD5E1', marginBottom: 6 }}>
-                  9Router API Key (Bearer Token):
+                  AI Gateway API Key (Bearer Token):
                 </label>
                 <input
                   type="text"
@@ -1131,7 +1131,7 @@ export function TopdooAiView() {
               border: '1px solid #334155',
               lineHeight: 1.5
             }}>
-              💡 <strong>Mẹo:</strong> 9Router tự động nén token (RTK Token Saver), tự động fallback giữa các subscription/free provider và mở Web Dashboard quản lý tại: <code style={{ color: '#38BDF8' }}>http://localhost:20128/dashboard</code>.
+              💡 <strong>Mẹo:</strong> Topdoo AI Gateway tự động nén token (RTK Token Saver), tự động fallback giữa các subscription/free provider và mở Web Dashboard quản lý.
             </div>
 
             {/* Footer buttons */}
@@ -1174,7 +1174,7 @@ export function TopdooAiView() {
                   cursor: 'pointer'
                 }}
               >
-                Lưu & Kích Hoạt 9Router
+                Lưu & Kích Hoạt AI Gateway
               </button>
             </div>
           </div>

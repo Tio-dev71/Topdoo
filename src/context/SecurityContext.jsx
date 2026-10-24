@@ -1054,6 +1054,11 @@ export function SecurityProvider({ children }) {
     return (sess?.role && Object.values(ROLES).includes(sess.role)) ? sess.role : ROLES.USER;
   });
 
+  // Global AI Security Copilot Chatbot state
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+  const openCopilot = useCallback(() => setIsCopilotOpen(true), []);
+  const closeCopilot = useCallback(() => setIsCopilotOpen(false), []);
+
   // Marketing Auth Modal state (Login / Register popup)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login'); // 'login' | 'register'
@@ -2292,6 +2297,11 @@ export function SecurityProvider({ children }) {
 
         // Hybrid Auth (Local & Supabase)
         user,
+        setUser,
+        isCopilotOpen,
+        setIsCopilotOpen,
+        openCopilot,
+        closeCopilot,
         authLoading,
         authError,
         signUp,

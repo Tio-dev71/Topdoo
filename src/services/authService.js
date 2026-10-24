@@ -31,7 +31,7 @@ export const DEFAULT_LOCAL_USERS = [
   {
     id: 'usr-user-04',
     email: 'user@topdoo.com',
-    fullName: 'Nguyễn Văn A',
+    fullName: 'Người Dùng Topdoo',
     avatarUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=120&q=80',
     role: 'USER',
     password: 'Topmediacto!!!'

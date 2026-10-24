@@ -29,11 +29,26 @@ import {
 import { useSecurity } from '../../context/SecurityContext';
 
 export function SecurityCopilotChat() {
-  const { showToast } = useSecurity();
+  const { showToast, isCopilotOpen, setIsCopilotOpen } = useSecurity();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [config, setConfig] = useState(getChatbotConfig);
+
+  // Sync with context state
+  useEffect(() => {
+    if (isCopilotOpen) {
+      setIsOpen(true);
+      setIsMinimized(false);
+    }
+  }, [isCopilotOpen]);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    if (typeof setIsCopilotOpen === 'function') {
+      setIsCopilotOpen(false);
+    }
+  };
 
   const [inputMessage, setInputMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -52,16 +67,28 @@ export function SecurityCopilotChat() {
     ];
   });
 
-  // Listen for admin config updates
+  // Listen for admin config updates & custom open event
   useEffect(() => {
     const handleConfigUpdate = (e) => {
       if (e.detail) {
         setConfig(e.detail);
       }
     };
+    const handleOpenTrigger = () => {
+      setIsOpen(true);
+      setIsMinimized(false);
+      if (typeof setIsCopilotOpen === 'function') {
+        setIsCopilotOpen(true);
+      }
+    };
+
     window.addEventListener('topdoo_chatbot_config_updated', handleConfigUpdate);
-    return () => window.removeEventListener('topdoo_chatbot_config_updated', handleConfigUpdate);
-  }, []);
+    window.addEventListener('topdoo:open-copilot', handleOpenTrigger);
+    return () => {
+      window.removeEventListener('topdoo_chatbot_config_updated', handleConfigUpdate);
+      window.removeEventListener('topdoo:open-copilot', handleOpenTrigger);
+    };
+  }, [setIsCopilotOpen]);
 
   // Auto scroll to bottom
   const scrollToBottom = () => {
@@ -147,7 +174,7 @@ export function SecurityCopilotChat() {
             if (next[assistantIndex]) {
               next[assistantIndex] = {
                 ...next[assistantIndex],
-                content: `⚠️ Không thể kết nối tới máy chủ AI 9Router: ${err.message || 'Lỗi mạng'}. Vui lòng thử lại sau.`,
+                content: `⚠️ Không thể kết nối tới máy chủ AI Topdoo: ${err.message || 'Lỗi mạng'}. Vui lòng thử lại sau.`,
                 isStreaming: false,
                 isError: true
               };
@@ -269,7 +296,7 @@ export function SecurityCopilotChat() {
           </div>
           <div className="fab-tooltip">
             <span className="fab-dot" />
-            <span>Topdoo Cyber Copilot (9Router AI)</span>
+            <span>Topdoo Cyber Copilot (AI An ninh)</span>
           </div>
         </div>
       )}
@@ -284,12 +311,12 @@ export function SecurityCopilotChat() {
             <div className="copilot-header-left">
               <div className="copilot-avatar">
                 <ShieldCheck size={20} className="avatar-shield" />
-                <span className="avatar-status-dot" title="9Router Live Engine: Hoạt động" />
+                <span className="avatar-status-dot" title="Topdoo AI Core: Sẵn sàng" />
               </div>
               <div className="copilot-header-meta">
                 <div className="copilot-title-row">
                   <span className="copilot-title">{config.botName || 'Topdoo Cyber Copilot'}</span>
-                  <span className="copilot-badge">9Router</span>
+                  <span className="copilot-badge">AI Core</span>
                 </div>
                 <div className="copilot-subtitle">
                   <span className="copilot-model-name">{activeModelMeta.name}</span>
@@ -320,7 +347,7 @@ export function SecurityCopilotChat() {
                 <ChevronDown size={17} style={{ transform: isMinimized ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 className="copilot-action-btn close-btn"
                 title="Đóng trợ lý"
               >
@@ -446,7 +473,7 @@ export function SecurityCopilotChat() {
                   )}
                 </form>
                 <div className="copilot-disclaimer">
-                  AI bảo mật vận hành độc lập trên cụm 9Router VPS. Không cung cấp mã OTP/Mật khẩu cho bất kỳ ai.
+                  AI bảo mật vận hành chuyên biệt trên hạ tầng Topdoo Core. Không chia sẻ mã OTP hoặc mật khẩu với bất kỳ ai.
                 </div>
               </div>
             </>
