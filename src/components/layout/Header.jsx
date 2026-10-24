@@ -452,6 +452,19 @@ export function Header() {
                   </button>
                   <button
                     className="btn btn-ghost"
+                    style={{ width: '100%', justifyContent: 'flex-start', padding: '8px 16px', fontSize: 13, borderRadius: 0, color: '#0284c7', fontWeight: 600 }}
+                    onClick={() => {
+                      setProfileOpen(false);
+                      setMode('admin');
+                      setMarketingRoute('admin');
+                      if (typeof window !== 'undefined') window.history.pushState({}, '', '/admin');
+                    }}
+                  >
+                    <Shield size={14} />
+                    <span>Cổng Quản trị (admin.topdoo.com)</span>
+                  </button>
+                  <button
+                    className="btn btn-ghost"
                     style={{ width: '100%', justifyContent: 'flex-start', padding: '8px 16px', fontSize: 13, borderRadius: 0, color: '#DC2626' }}
                     onClick={() => {
                       setProfileOpen(false);

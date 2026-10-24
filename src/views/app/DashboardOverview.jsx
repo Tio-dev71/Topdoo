@@ -345,7 +345,26 @@ export function DashboardOverview() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentThreats.map((ent, idx) => (
+                  {recentThreats.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: '36px 16px', textAlign: 'center', color: '#64748B' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                          <ShieldCheck size={28} color="#10B981" />
+                          <div style={{ fontWeight: 600, fontSize: 13, color: '#1E293B' }}>Hệ thống đang bảo vệ an toàn</div>
+                          <div style={{ fontSize: 12 }}>Chưa ghi nhận mối đe dọa nào. Sử dụng Quick Check hoặc tra cứu CheckScam để kiểm tra ngay.</div>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            style={{ marginTop: 8 }}
+                            onClick={() => setCurrentView('quick-check')}
+                          >
+                            <Zap size={13} />
+                            <span>Quét an ninh ngay</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    recentThreats.map((ent, idx) => (
                     <tr
                       key={ent.id}
                       style={{
@@ -423,7 +442,7 @@ export function DashboardOverview() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  ))) }
                 </tbody>
               </table>
             </div>

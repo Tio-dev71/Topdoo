@@ -47,9 +47,43 @@ import { ReportsView } from './views/app/ReportsView';
 import { ApiIntegrationsView } from './views/app/ApiIntegrationsView';
 import { ReleaseGateView } from './views/app/ReleaseGateView';
 import { SettingsView } from './views/app/SettingsView';
+import { AdminManagementPortal } from './views/admin/AdminManagementPortal';
+import { SecurityCopilotChat } from './components/security/SecurityCopilotChat';
 
 function AppContent() {
   const { mode, marketingRoute, currentView, sidebarCollapsed, toast } = useSecurity();
+
+  // Check if accessing via admin.topdoo.com or /admin route or admin mode
+  const isAdmin = typeof window !== 'undefined' && (
+    window.location.hostname.startsWith('admin.') ||
+    window.location.pathname === '/admin' ||
+    window.location.pathname.startsWith('/admin/') ||
+    mode === 'admin' ||
+    marketingRoute === 'admin'
+  );
+
+  if (isAdmin) {
+    return (
+      <>
+        <AdminManagementPortal />
+        <SecurityCopilotChat />
+        <GlobalSearchModal />
+        <MarketingAuthModal />
+        <CreditModal />
+        {toast && (
+          <div className="toast-container">
+            <div className="toast-box">
+              <span style={{ fontSize: 16 }}>{toast.type === 'success' ? '✅' : (toast.type === 'warning' ? '⚠️' : 'ℹ️')}</span>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>{toast.title}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{toast.message}</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
 
   // If in marketing website mode, show the public-facing platform website or sub-route
   if (mode === 'marketing') {
@@ -129,6 +163,7 @@ function AppContent() {
         <GlobalSearchModal />
         <MarketingAuthModal />
         <CreditModal />
+        <SecurityCopilotChat />
         {toast && (
           <div className="toast-container">
             <div className="toast-box">
@@ -183,6 +218,8 @@ function AppContent() {
         return <ReleaseGateView />;
       case 'settings':
         return <SettingsView />;
+      case 'admin':
+        return <AdminManagementPortal />;
       default:
         return <DashboardOverview />;
     }
@@ -200,6 +237,9 @@ function AppContent() {
           {renderCurrentView()}
         </main>
       </div>
+
+      {/* Global Security Chatbot (9Router) */}
+      <SecurityCopilotChat />
 
       {/* Global Search Modal (⌘K) */}
       <GlobalSearchModal />

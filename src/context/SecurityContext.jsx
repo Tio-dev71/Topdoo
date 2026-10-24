@@ -65,6 +65,18 @@ export function SecurityProvider({ children }) {
       const path = window.location.pathname.replace(/\/$/, '');
       const hash = window.location.hash;
       const search = new URLSearchParams(window.location.search);
+
+      // Admin portal domain and route detection
+      if (
+        window.location.hostname.startsWith('admin.') ||
+        path === '/admin' ||
+        path.startsWith('/admin/') ||
+        hash === '#admin' ||
+        search.get('mode') === 'admin'
+      ) {
+        return 'admin';
+      }
+
       if (
         path === '/app' ||
         path === '/dashboard' ||
@@ -82,6 +94,15 @@ export function SecurityProvider({ children }) {
   const [marketingRoute, setMarketingRoute] = useState(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.replace(/\/$/, '');
+
+      if (
+        window.location.hostname.startsWith('admin.') ||
+        path === '/admin' ||
+        path.startsWith('/admin/') ||
+        window.location.hash === '#admin'
+      ) {
+        return 'admin';
+      }
       if (path === '/topdoo-ai' || window.location.hash === '#topdoo-ai') {
         return 'topdoo-ai';
       }
@@ -459,6 +480,15 @@ export function SecurityProvider({ children }) {
 
   const navigateMarketing = (route) => {
     let finalRoute = route;
+    if (route === 'admin' || route === 'admin-portal' || route === 'quan-tri') {
+      finalRoute = 'admin';
+      setMode('admin');
+      setMarketingRoute('admin');
+      if (typeof window !== 'undefined') {
+        window.history.pushState({}, '', '/admin');
+      }
+      return;
+    }
     if (route === 'pricing' || route === 'bang-gia' || route === 'topdoo-pricing') {
       finalRoute = 'topdoo-pricing';
     } else if (route === 'kham-pha' || route === 'explore' || route === 'topdoo-explore') {
@@ -1344,15 +1374,123 @@ export function SecurityProvider({ children }) {
     showToast('Đăng bài thành công', 'Bài viết của bạn đã được chia sẻ đến cộng đồng Topdoo.', 'success');
   };
 
-  // Entities & Intelligence Data
-  const [entities, setEntities] = useState(initialEntities);
-  const [reports, setReports] = useState(initialReports);
-  const [evidenceList, setEvidenceList] = useState(initialEvidence);
-  const [alerts, setAlerts] = useState(initialAlerts);
-  const [monitoringEvents, setMonitoringEvents] = useState(initialMonitoringEvents);
+  // Entities & Intelligence Data (Gỡ bỏ dữ liệu giả - Lưu trữ thực tế hoặc khởi tạo sạch)
+  const [entities, setEntities] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('topdoo_security_entities');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [
+      {
+        id: 'ent-topdoo-official',
+        identifier: 'topdoo.com',
+        type: 'domain',
+        name: 'Hạ tầng Nền tảng An ninh & AI TOPDOO',
+        riskScore: 0,
+        status: 'Hệ sinh thái Chính thức Xác minh',
+        targetBrand: 'TOPDOO Platform',
+        category: 'Hạ tầng Công nghệ An ninh',
+        createdAt: '2026-01-01',
+        lastSeen: 'Vừa xong',
+        reportsCount: 0,
+        evidenceCount: 1,
+        watchlist: false,
+        country: 'VN',
+        ip: '157.66.100.35',
+        summary: 'Hệ thống kiểm định an toàn thông tin, bảo vệ người dùng số và doanh nghiệp trước gian lận trực tuyến.',
+        riskFactors: [
+          { name: 'Độ tin cậy hạ tầng', score: 0, max: 35, status: 'Clean', desc: 'Chứng chỉ TLS bảo mật cao cấp, hệ thống quét mã độc đạt chuẩn Zero-Trust.' }
+        ],
+        relatedEntityIds: []
+      }
+    ];
+  });
+
+  const [reports, setReports] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('topdoo_security_reports');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
+
+  const [evidenceList, setEvidenceList] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('topdoo_security_evidence');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
+
+  const [alerts, setAlerts] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('topdoo_security_alerts');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
+
+  const [monitoringEvents, setMonitoringEvents] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('topdoo_security_monitoring');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
+
   const [watchlistRules, setWatchlistRules] = useState(initialWatchlistRules);
   const [apiKeys, setApiKeys] = useState(initialApiKeys);
   const [isMonitoringActive, setIsMonitoringActive] = useState(true);
+
+  // Auto-sync state to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Array.isArray(entities)) {
+      localStorage.setItem('topdoo_security_entities', JSON.stringify(entities));
+    }
+  }, [entities]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Array.isArray(reports)) {
+      localStorage.setItem('topdoo_security_reports', JSON.stringify(reports));
+    }
+  }, [reports]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Array.isArray(alerts)) {
+      localStorage.setItem('topdoo_security_alerts', JSON.stringify(alerts));
+    }
+  }, [alerts]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Array.isArray(monitoringEvents)) {
+      localStorage.setItem('topdoo_security_monitoring', JSON.stringify(monitoringEvents));
+    }
+  }, [monitoringEvents]);
 
 
   // Quick Check state

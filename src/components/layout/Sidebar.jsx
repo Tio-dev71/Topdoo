@@ -211,6 +211,7 @@ export function Sidebar() {
           {isExpanded && <div className="nav-section-title">Quản lý</div>}
           <div className="nav-group">
             {navItem('report-scam', 'Báo cáo lừa đảo', PlusCircle)}
+            {navItem('admin', 'Admin Portal', Shield)}
             {navItem('api-integrations', 'API & Tích hợp', Terminal)}
             {navItem('release-gate', 'Release Gate & SLO', ShieldCheck)}
             {navItem('settings', 'Cài đặt', Settings)}
